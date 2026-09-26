@@ -7,11 +7,9 @@ import { errorHandler } from "./middleware/errorHandler.js";
 export function createApp() {
   const app = express();
 
-  app.use(
-    cors({
-      origin: env.clientOrigin,
-    })
-  );
+  app.use(cors({
+    origin: ['http://localhost:5173', 'https://amit-in-the-middle.vercel.app']
+  }));
   app.use(express.json());
 
   app.get("/api/health", (_req, res) => {
