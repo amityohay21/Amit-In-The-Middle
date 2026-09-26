@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+const API_BASE = "https://ameet-in-the-middle.onrender.com";
 
 export async function searchMeetingPlaces({ addresses, optimizationMode }) {
   const response = await fetch(`${API_BASE}/api/search`, {
