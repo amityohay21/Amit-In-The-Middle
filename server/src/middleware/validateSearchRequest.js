@@ -3,7 +3,14 @@ import { AppError } from "./errorHandler.js";
 const ALLOWED_MODES = new Set(["minimax", "sum"]);
 
 export function validateSearchRequest(req, _res, next) {
-  const { addresses, optimizationMode } = req.body ?? {};
+  // קולטים את הפרמטרים החדשים, עם ערכי ברירת מחדל במידה ולא נשלחו
+  const { 
+    addresses, 
+    optimizationMode,
+    minRating = 0,
+    requireDineIn = false,
+    includeCarts = false
+  } = req.body ?? {};
 
   if (!Array.isArray(addresses)) {
     return next(new AppError("addresses must be an array of strings", 400));
@@ -36,9 +43,14 @@ export function validateSearchRequest(req, _res, next) {
     );
   }
 
+  // מעבירים את הנתונים המאומתים לקונטרולר
   req.validatedSearch = {
     addresses: trimmed,
     optimizationMode,
+    minRating: Number(minRating) || 0,
+    requireDineIn: Boolean(requireDineIn),
+    includeCarts: Boolean(includeCarts)
   };
+  
   next();
 }
