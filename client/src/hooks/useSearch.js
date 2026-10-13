@@ -4,6 +4,12 @@ import { searchMeetingPlaces } from "../api/searchApi.js";
 export function useSearch() {
   const [addresses, setAddresses] = useState(["", ""]);
   const [optimizationMode, setOptimizationMode] = useState("minimax");
+  
+  // המצבים של הפילטרים החדשים
+  const [minRating, setMinRating] = useState(0);
+  const [requireDineIn, setRequireDineIn] = useState(false);
+  const [includeCarts, setIncludeCarts] = useState(false);
+
   const [results, setResults] = useState(null);
   const [searchRadius, setSearchRadius] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +39,10 @@ export function useSearch() {
       const data = await searchMeetingPlaces({
         addresses: addresses.map((address) => address.trim()).filter(Boolean),
         optimizationMode,
+        // מעבירים את הפילטרים לשרת
+        minRating,
+        requireDineIn,
+        includeCarts
       });
       setResults(data.results);
       setSearchRadius(data.searchRadius);
@@ -43,12 +53,16 @@ export function useSearch() {
     } finally {
       setIsLoading(false);
     }
-  }, [addresses, optimizationMode]);
+  }, [addresses, optimizationMode, minRating, requireDineIn, includeCarts]);
 
   return {
     addresses,
     optimizationMode,
     setOptimizationMode,
+    // חושפים את הפילטרים החוצה כדי שהטופס יוכל להשתמש בהם
+    minRating, setMinRating,
+    requireDineIn, setRequireDineIn,
+    includeCarts, setIncludeCarts,
     results,
     searchRadius,
     isLoading,

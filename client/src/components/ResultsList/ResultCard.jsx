@@ -4,7 +4,13 @@ const TYPE_LABELS = {
   bar: "בר",
 };
 
-function primaryType(types) {
+// הוספנו זיהוי חכם לעגלות קפה לפי השם, כי גוגל מסווגת אותן לרוב רק כ"חנות" או "מסעדה"
+function primaryType(types, name) {
+  const nameLower = name?.toLowerCase() || "";
+  if (nameLower.includes("עגלת קפה") || nameLower.includes("food truck")) {
+    return "עגלת קפה";
+  }
+
   for (const type of ["cafe", "restaurant", "bar"]) {
     if (types?.includes(type)) return TYPE_LABELS[type];
   }
@@ -18,16 +24,27 @@ export default function ResultCard({ place }) {
   );
   const whatsappUrl = `https://api.whatsapp.com/send?text=${whatsappMessage}`;
 
+  const placeType = primaryType(place.types, place.name);
+  
+  // אם זה לא מוגדר כטייק-אווי בלבד (כלומר זה בית קפה/מסעדה/בר), נניח שיש מקום ישיבה
+  const hasSeating = place.types?.some(t => ["restaurant", "cafe", "bar"].includes(t));
+
   return (
     <article className="result-card">
-      <header className="result-card__header">
-        <h3>{place.name}</h3>
-        <span className="result-card__type">{primaryType(place.types)}</span>
+      <header className="result-card__header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h3 style={{ margin: "0 0 4px 0" }}>{place.name}</h3>
+          <span className="result-card__type" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            {placeType}
+            {/* אייקון הישיבה הנקי שהצעת */}
+            {hasSeating && <span title="יש מקום ישיבה">🪑</span>}
+          </span>
+        </div>
       </header>
 
       <p className="result-card__meta">
-        {place.rating != null ? `★ ${place.rating}` : "אין דירוג"}
-        {place.userRatingsTotal
+        {place.rating > 0 ? `⭐ ${place.rating}` : "אין דירוג"}
+        {place.userRatingsTotal > 0
           ? ` · ${place.userRatingsTotal} ביקורות`
           : null}
         {place.vicinity ? ` · ${place.vicinity}` : null}
@@ -41,11 +58,12 @@ export default function ResultCard({ place }) {
         ))}
       </ul>
 
-      <footer className="result-card__footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
-        <span className="result-card__score">זמן נסיעה מקסימלי: {place.score} דק'</span>
+      <footer className="result-card__footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginTop: "12px" }}>
+        <span className="result-card__score" style={{ fontWeight: "bold" }}>
+          זמן נסיעה מקסימלי: {place.score} דק'
+        </span>
         
         <div style={{ display: "flex", gap: "10px" }}>
-          {/* כפתור שיתוף בוואטסאפ */}
           <a
             className="button"
             href={whatsappUrl}
