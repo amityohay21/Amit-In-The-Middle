@@ -126,8 +126,10 @@ export async function searchNearbyPlaces(centroid, radius, apiKey, filters = {})
 
       // 2. סינון לפי מינימום דירוג שהמשתמש בחר
       if (mapped.rating < minRating) continue;
+      // 3. סינון מקומות "מעפנים" - חובה מעל 100 ביקורות
+      if (mapped.userRatingsTotal < 100) continue;
 
-      // 3. סינון ישיבה במקום (מסננים "Takeaway" רק אם הוגדרה חובת ישיבה וזה לא בית קפה/מסעדה במקביל)
+      // 4. סינון ישיבה במקום (מסננים "Takeaway" רק אם הוגדרה חובת ישיבה וזה לא בית קפה/מסעדה במקביל)
       if (requireDineIn && mapped.types.includes("meal_takeaway") && !mapped.types.includes("restaurant") && !mapped.types.includes("cafe")) {
         continue;
       }
