@@ -10,10 +10,11 @@ export default function HomePage() {
     addresses,
     optimizationMode,
     setOptimizationMode,
-    // הנה הפילטרים שחילצנו מה-Hook
     minRating, setMinRating,
     requireDineIn, setRequireDineIn,
     includeCarts, setIncludeCarts,
+    // הנה החוט החדש שמשכנו מהמוח:
+    openNow, setOpenNow,
     results,
     searchRadius,
     isLoading,
@@ -47,13 +48,15 @@ export default function HomePage() {
         onRemove={removeAddress}
         onSubmit={search}
         isLoading={isLoading}
-        // והנה אנחנו מעבירים אותם לטופס כדי שהתגיות יעבדו
         minRating={minRating}
         setMinRating={setMinRating}
         requireDineIn={requireDineIn}
         setRequireDineIn={setRequireDineIn}
         includeCarts={includeCarts}
         setIncludeCarts={setIncludeCarts}
+        // והנה אנחנו מחברים אותו לטופס:
+        openNow={openNow}
+        setOpenNow={setOpenNow}
       />
 
       <ErrorBanner message={error} />

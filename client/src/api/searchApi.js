@@ -16,7 +16,8 @@ export async function searchMeetingPlaces({
       optimizationMode, 
       minRating, 
       requireDineIn, 
-      includeCarts 
+      includeCarts,
+      openNow
     }),
   });
 

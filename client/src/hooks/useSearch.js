@@ -5,10 +5,11 @@ export function useSearch() {
   const [addresses, setAddresses] = useState(["", ""]);
   const [optimizationMode, setOptimizationMode] = useState("minimax");
   
-  // המצבים של הפילטרים החדשים
+  // המצבים של הפילטרים 
   const [minRating, setMinRating] = useState(0);
   const [requireDineIn, setRequireDineIn] = useState(false);
   const [includeCarts, setIncludeCarts] = useState(false);
+  const [openNow, setOpenNow] = useState(false); // הפיצ'ר החדש!
 
   const [results, setResults] = useState(null);
   const [searchRadius, setSearchRadius] = useState(null);
@@ -39,10 +40,10 @@ export function useSearch() {
       const data = await searchMeetingPlaces({
         addresses: addresses.map((address) => address.trim()).filter(Boolean),
         optimizationMode,
-        // מעבירים את הפילטרים לשרת
         minRating,
         requireDineIn,
-        includeCarts
+        includeCarts,
+        openNow // מעבירים לשרת
       });
       setResults(data.results);
       setSearchRadius(data.searchRadius);
@@ -53,16 +54,16 @@ export function useSearch() {
     } finally {
       setIsLoading(false);
     }
-  }, [addresses, optimizationMode, minRating, requireDineIn, includeCarts]);
+  }, [addresses, optimizationMode, minRating, requireDineIn, includeCarts, openNow]);
 
   return {
     addresses,
     optimizationMode,
     setOptimizationMode,
-    // חושפים את הפילטרים החוצה כדי שהטופס יוכל להשתמש בהם
     minRating, setMinRating,
     requireDineIn, setRequireDineIn,
     includeCarts, setIncludeCarts,
+    openNow, setOpenNow, // חושפים החוצה
     results,
     searchRadius,
     isLoading,
