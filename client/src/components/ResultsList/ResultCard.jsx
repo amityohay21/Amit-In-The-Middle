@@ -17,8 +17,9 @@ function primaryType(types, name) {
 }
 
 export default function ResultCard({ place }) {
+  // בניית הודעת הוואטסאפ החדשה - אישית, נקייה, ועם קישור ישיר לניווט
   const whatsappMessage = encodeURIComponent(
-    `ניפגש ב-${place.name}! 📍\nכתובת: ${place.vicinity || "לא צויינה כתובת"}\n⏱️ זמן נסיעה מקסימלי: ${place.score} דק'`
+    `עמית מצא לכם מיקום שווה למפגש! 🎯\n\nניפגש ב-${place.name} 📍\nכתובת: ${place.vicinity || "לא צויינה כתובת"}\n\n🚗 לניווט מהיר ב-Waze לחצו כאן:\n${place.wazeUrl}`
   );
   const whatsappUrl = `https://api.whatsapp.com/send?text=${whatsappMessage}`;
 
@@ -60,7 +61,6 @@ export default function ResultCard({ place }) {
         
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           
-          {/* כפתור חיפוש בגוגל */}
           <a
             className="button"
             href={place.googleSearchUrl}
@@ -83,7 +83,6 @@ export default function ResultCard({ place }) {
             🔍 פרטים ותפריט
           </a>
 
-          {/* כפתור Waze - עם כחול עמוק ורגוע יותר */}
           <a
             className="button"
             href={place.wazeUrl}
@@ -106,7 +105,6 @@ export default function ResultCard({ place }) {
             Waze 🚗
           </a>
 
-          {/* כפתור שיתוף בוואטסאפ עם הלוגו המקורי וצבע המותג */}
           <a
             className="button"
             href={whatsappUrl}
