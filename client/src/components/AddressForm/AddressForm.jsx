@@ -1,6 +1,5 @@
 import AddressInput from "./AddressInput.jsx";
 
-// פונקציית עזר קטנה לעיצוב התגיות בצורה נקייה
 const getChipStyle = (isActive) => ({
   padding: "6px 14px",
   borderRadius: "20px",
@@ -23,10 +22,11 @@ export default function AddressForm({
   onRemove,
   onSubmit,
   isLoading,
-  // מקבלים את הפילטרים מבחוץ
   minRating, setMinRating,
   requireDineIn, setRequireDineIn,
-  includeCarts, setIncludeCarts
+  includeCarts, setIncludeCarts,
+  // הנה התיקון - עכשיו הוא מכיר את הפתוח עכשיו!
+  openNow, setOpenNow 
 }) {
   const filledCount = addresses.filter((address) => (address || "").trim()).length;
 
@@ -49,10 +49,17 @@ export default function AddressForm({
         />
       ))}
 
-      {/* אזור הפילטרים החדש */}
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0 20px 0" }}>
         
-        {/* מתג ישיבה */}
+        {/* מתג פתוח עכשיו */}
+        <button
+          type="button"
+          onClick={() => setOpenNow(!openNow)}
+          style={getChipStyle(openNow)}
+        >
+          🟢 פתוח עכשיו
+        </button>
+
         <button
           type="button"
           onClick={() => setRequireDineIn(!requireDineIn)}
@@ -61,7 +68,6 @@ export default function AddressForm({
           🪑 ישיבה במקום
         </button>
 
-        {/* מתג עגלות קפה */}
         <button
           type="button"
           onClick={() => setIncludeCarts(!includeCarts)}
@@ -70,13 +76,12 @@ export default function AddressForm({
           ☕ עגלות קפה
         </button>
 
-        {/* בחירת דירוג */}
         <select
           value={minRating}
           onChange={(e) => setMinRating(Number(e.target.value))}
           style={{
             ...getChipStyle(minRating > 0),
-            appearance: "none", // מסתיר את החץ המכוער של הדפדפן
+            appearance: "none",
             paddingRight: "14px"
           }}
         >
