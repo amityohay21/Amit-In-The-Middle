@@ -1,18 +1,14 @@
 export async function searchNearbyPlaces(centroid, radius, apiKey, options = {}) {
   const { minRating = 0, requireDineIn = false, includeCarts = false, openNow = false } = options;
 
-  // הברקת המוצר: יורים לכל הכיוונים - גם עברית וגם אנגלית כדי לא לפספס כלום
-  let keyword = "restaurant OR מסעדה OR cafe OR קפה OR בית קפה OR bar OR בר";
-  
-  if (includeCarts) {
-    keyword += " OR עגלת קפה OR food truck";
-  }
+  // חזרנו למבנה המנצח: אנגלית פשוטה + שפה עברית מחזיר את כל המקומות המדויקים בארץ
+  const keyword = includeCarts ? "cafe OR restaurant OR bar OR עגלת קפה" : "cafe OR restaurant OR bar";
 
   const url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
   url.searchParams.append("location", `${centroid.lat},${centroid.lng}`);
   url.searchParams.append("radius", radius.toString());
   url.searchParams.append("keyword", keyword);
-  url.searchParams.append("language", "iw"); // עדיין מבקשים שהתוצאות עצמן יחזרו בעברית
+  url.searchParams.append("language", "iw"); // מבקשים מגוגל את המידע בעברית
   url.searchParams.append("key", apiKey);
 
   if (openNow) {
