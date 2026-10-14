@@ -1,50 +1,72 @@
 import { useState, useMemo } from "react";
 import ResultCard from "./ResultCard.jsx";
 
+// פונקציית עזר לעיצוב כפתורי הצ'קליסט (שייראו כמו תגיות אלגנטיות)
+const FilterChip = ({ label, checked, onChange }) => (
+  <label style={{
+    display: "inline-flex", alignItems: "center", gap: "6px",
+    padding: "6px 14px", borderRadius: "20px",
+    border: `1px solid ${checked ? "#007aff" : "#ccc"}`,
+    background: checked ? "#e5f1ff" : "#fff",
+    color: checked ? "#007aff" : "#555",
+    cursor: "pointer", fontSize: "14px", userSelect: "none",
+    transition: "all 0.2s"
+  }}>
+    <input 
+      type="checkbox" 
+      checked={checked} 
+      onChange={onChange} 
+      style={{ display: "none" }} // מסתירים את הריבוע המכוער של הדפדפן
+    />
+    {checked ? "✓ " : ""}{label}
+  </label>
+);
+
 export default function ResultsList({ results, searchRadius }) {
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  // המצבים של הצ'קליסט - כברירת מחדל הכל מסומן (מוצג)
+  const [categories, setCategories] = useState({
+    cafe: true,
+    restaurant: true,
+    bar: true,
+    cart: true,
+  });
+  
   const [sortByRating, setSortByRating] = useState(false);
 
-  // סינון ומיון משולבים שעובדים מדויק
+  // סינון ומיון משולבים שעובדים מדויק ומהר על המכשיר (Client-side)
   const filteredAndSortedResults = useMemo(() => {
     if (!results) return [];
 
-    // שלב 1: סינון מדויק לפי הקטגוריה שנבחרה
     const filtered = results.filter((place) => {
-      if (categoryFilter === "all") return true;
-
       const types = place.types || [];
       const name = (place.name || "").toLowerCase();
       
-      if (categoryFilter === "cafe") {
-        return types.includes("cafe");
-      }
-      if (categoryFilter === "restaurant") {
-        return types.includes("restaurant") && !types.includes("cafe");
-      }
-      if (categoryFilter === "bar") {
-        // בודק גם סוגי ברים שונים של גוגל וגם אם המילה בר/פאב מופיעה בשם המקום
-        return (
-          types.includes("bar") || 
-          types.includes("night_club") || 
-          types.includes("pub") || 
-          types.includes("liquor_store") ||
-          name.includes("בר") ||
-          name.includes("פאב") ||
-          name.includes("bar")
-        );
-      }
+      const isCart = name.includes("עגלת קפה") || name.includes("food truck");
+      const isBar = types.includes("bar") || types.includes("night_club") || types.includes("pub") || types.includes("liquor_store") || name.includes("בר") || name.includes("פאב") || name.includes("bar");
+      const isCafe = types.includes("cafe");
+      const isRestaurant = types.includes("restaurant") && !isCafe && !isBar && !isCart;
 
-      return true;
+      // בודקים אם הקטגוריה של המקום כרגע מסומנת ב-V אצל המשתמש
+      if (isCart) return categories.cart;
+      if (isBar) return categories.bar;
+      if (isCafe) return categories.cafe;
+      if (isRestaurant) return categories.restaurant;
+      
+      // אם גוגל החזיר מקום לא מוגדר, נציג אותו אם לפחות בתי קפה או מסעדות מסומנים
+      return categories.restaurant || categories.cafe;
     });
 
-    // שלב 2: מיון לפי דירוג (אם המשתמש לחץ על כפתור המיון)
     if (sortByRating) {
       return [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
     return filtered;
-  }, [results, categoryFilter, sortByRating]);
+  }, [results, categories, sortByRating]);
+
+  // פונקציית עזר לשינוי מצב של צ'ק-בוקס ספציפי
+  const toggleCategory = (key) => {
+    setCategories(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   if (!results) return null;
 
@@ -58,36 +80,30 @@ export default function ResultsList({ results, searchRadius }) {
       </header>
 
       {/* סרגל סינונים ומיון */}
-      <div className="filters-bar" style={{ display: "flex", gap: "15px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
-        <div>
-          <label style={{ marginLeft: "8px", fontWeight: "bold" }}>קטגוריה:</label>
-          <select 
-            value={categoryFilter} 
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #ccc" }}
-          >
-            <option value="all">הכל</option>
-            <option value="cafe">בית קפה בלבד</option>
-            <option value="restaurant">מסעדה בלבד</option>
-            <option value="bar">בר בלבד</option>
-          </select>
-        </div>
+      <div className="filters-bar" style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
+        
+        {/* כפתורי הצ'קליסט החדשים שלנו */}
+        <FilterChip label="בתי קפה" checked={categories.cafe} onChange={() => toggleCategory("cafe")} />
+        <FilterChip label="מסעדות" checked={categories.restaurant} onChange={() => toggleCategory("restaurant")} />
+        <FilterChip label="ברים" checked={categories.bar} onChange={() => toggleCategory("bar")} />
+        <FilterChip label="עגלות קפה" checked={categories.cart} onChange={() => toggleCategory("cart")} />
 
-        <div>
+        <div style={{ marginRight: "auto" }}>
           <button
             type="button"
             onClick={() => setSortByRating(!sortByRating)}
             style={{
               padding: "7px 14px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-              background: sortByRating ? "#ff9800" : "#fff",
-              color: sortByRating ? "#fff" : "#333",
+              borderRadius: "20px",
+              border: `1px solid ${sortByRating ? "#ff9800" : "#ccc"}`,
+              background: sortByRating ? "#fff3e0" : "#fff",
+              color: sortByRating ? "#ff9800" : "#333",
               cursor: "pointer",
-              fontWeight: "bold"
+              fontWeight: "bold",
+              transition: "all 0.2s"
             }}
           >
-            {sortByRating ? "⭐ ממוין לפי דירוג (בטל מיון)" : "📊 מיין לפי דירוג על פני מרחק"}
+            {sortByRating ? "⭐ ממוין לפי דירוג" : "📊 מיין לפי דירוג"}
           </button>
         </div>
       </div>
