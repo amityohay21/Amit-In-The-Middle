@@ -9,7 +9,7 @@ export function useSearch() {
   const [minRating, setMinRating] = useState(0);
   const [requireDineIn, setRequireDineIn] = useState(false);
   const [includeCarts, setIncludeCarts] = useState(false);
-  const [openNow, setOpenNow] = useState(false); // הפיצ'ר החדש!
+  const [openNow, setOpenNow] = useState(false); // הנה פתוח עכשיו!
 
   const [results, setResults] = useState(null);
   const [searchRadius, setSearchRadius] = useState(null);
@@ -43,7 +43,7 @@ export function useSearch() {
         minRating,
         requireDineIn,
         includeCarts,
-        openNow // מעבירים לשרת
+        openNow // נארז ונשלח לשרת ללא שגיאות
       });
       setResults(data.results);
       setSearchRadius(data.searchRadius);
@@ -63,7 +63,7 @@ export function useSearch() {
     minRating, setMinRating,
     requireDineIn, setRequireDineIn,
     includeCarts, setIncludeCarts,
-    openNow, setOpenNow, // חושפים החוצה
+    openNow, setOpenNow, // מועבר החוצה לטופס
     results,
     searchRadius,
     isLoading,

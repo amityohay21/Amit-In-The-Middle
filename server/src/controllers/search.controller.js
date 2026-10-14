@@ -7,7 +7,6 @@ import { getTravelTimes } from "../services/googleMaps/distanceMatrix.service.js
 import { minimaxScore } from "../services/ranking/minimax.js";
 import { sumOfTimesScore } from "../services/ranking/sumOfTimes.js";
 
-// פונקציית עזר מתמטית לחישוב מרחק אווירי (Haversine)
 function getAirDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -19,13 +18,16 @@ function getAirDistance(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
+// מחולל הקישורים החדש שלנו: Waze ו-Google Search
 function buildNavigationUrl(place) {
-  const params = new URLSearchParams({
-    api: "1",
-    destination: `${place.location.lat},${place.location.lng}`,
-    destination_place_id: place.placeId,
-  });
-  return `https://www.google.com/maps/dir/?${params.toString()}`;
+  // עברנו ל-Waze כברירת מחדל לישראלים
+  return `https://waze.com/ul?ll=${place.location.lat},${place.location.lng}&navigate=yes`;
+}
+
+function buildGoogleSearchUrl(place) {
+  // יוצר חיפוש מדויק בגוגל שפותח את כרטיסיית העסק עם התפריט והטלפון
+  const query = encodeURIComponent(`${place.name} ${place.vicinity}`);
+  return `https://www.google.com/search?q=${query}`;
 }
 
 function scorePlace(mode, durationMinutes) {
@@ -36,8 +38,8 @@ function scorePlace(mode, durationMinutes) {
 
 export async function searchMeetings(req, res, next) {
   try {
-    // הנה התיקון: אנחנו קולטים את כל הפילטרים מהבקשה
-    const { addresses, optimizationMode, minRating, requireDineIn, includeCarts } = req.validatedSearch;
+    // שלפנו פה גם את ה-openNow שהוספת קודם
+    const { addresses, optimizationMode, minRating, requireDineIn, includeCarts, openNow } = req.validatedSearch;
     const apiKey = env.googleMapsApiKey;
 
     const participants = await geocodeAddresses(addresses, apiKey);
@@ -46,11 +48,11 @@ export async function searchMeetings(req, res, next) {
     const centroid = computeCentroid(points);
     const searchRadius = Math.round(computeSearchRadius(centroid, points));
 
-    // מעבירים את הפילטרים לשירות של גוגל
     let places = await searchNearbyPlaces(centroid, searchRadius, apiKey, {
       minRating,
       requireDineIn,
-      includeCarts
+      includeCarts,
+      openNow // מעבירים אותו לחיפוש בגוגל מפות!
     });
     
     if (!places.length) {
@@ -60,7 +62,6 @@ export async function searchMeetings(req, res, next) {
       });
     }
 
-    // סינון גיאומטרי מקדים (Pre-filtering)
     places = places.map(place => {
       const totalAirDistance = points.reduce((sum, point) => {
         return sum + getAirDistance(point.lat, point.lng, place.location.lat, place.location.lng);
@@ -69,8 +70,6 @@ export async function searchMeetings(req, res, next) {
     });
 
     places.sort((a, b) => a.totalAirDistance - b.totalAirDistance);
-    
-    // בחרנו שלא להגביל ל-12 בשלב זה, אז הפונקציה מחשבת מרחק אבל לא מסננת מקומות
 
     const timesByDest = await getTravelTimes(
       points,
@@ -102,7 +101,8 @@ export async function searchMeetings(req, res, next) {
           vicinity: place.vicinity,
           travelTimes,
           score: scorePlace(optimizationMode, usableMinutes),
-          navigationUrl: buildNavigationUrl(place),
+          wazeUrl: buildNavigationUrl(place),
+          googleSearchUrl: buildGoogleSearchUrl(place) // שולחים את הקישור לכרטיסייה הקדמית
         };
       })
       .filter(Boolean)

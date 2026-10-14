@@ -36,7 +36,7 @@ export default function ResultCard({ place }) {
           <h3 style={{ margin: "0 0 4px 0" }}>{place.name}</h3>
           <span className="result-card__type" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
             {placeType}
-            {/* אייקון הישיבה הנקי שהצעת */}
+            {/* אייקון הישיבה הנקי */}
             {hasSeating && <span title="יש מקום ישיבה">🪑</span>}
           </span>
         </div>
@@ -59,11 +59,59 @@ export default function ResultCard({ place }) {
       </ul>
 
       <footer className="result-card__footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginTop: "12px" }}>
-        <span className="result-card__score" style={{ fontWeight: "bold" }}>
+        <span className="result-card__score" style={{ fontWeight: "bold", width: "100%" }}>
           זמן נסיעה מקסימלי: {place.score} דק'
         </span>
         
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          
+          {/* כפתור חיפוש בגוגל (לתפריט וטלפון) */}
+          <a
+            className="button"
+            href={place.googleSearchUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              backgroundColor: "#f0f0f0",
+              color: "#333",
+              padding: "6px 12px",
+              borderRadius: "6px",
+              textDecoration: "none",
+              fontWeight: "bold",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              fontSize: "14px",
+              border: "1px solid #ccc"
+            }}
+          >
+            🔍 פרטים ותפריט
+          </a>
+
+          {/* כפתור Waze */}
+          <a
+            className="button"
+            href={place.wazeUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              backgroundColor: "#33ccff",
+              color: "#fff",
+              padding: "6px 12px",
+              borderRadius: "6px",
+              textDecoration: "none",
+              fontWeight: "bold",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              fontSize: "14px",
+              border: "1px solid #2bb5e3"
+            }}
+          >
+            🚗 Waze
+          </a>
+
+          {/* כפתור שיתוף בוואטסאפ */}
           <a
             className="button"
             href={whatsappUrl}
@@ -82,16 +130,7 @@ export default function ResultCard({ place }) {
               fontSize: "14px"
             }}
           >
-            💬 שתף בוואטסאפ
-          </a>
-
-          <a
-            className="button button--link"
-            href={place.navigationUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            ניווט ב-Google Maps
+            💬 שתף
           </a>
         </div>
       </footer>
