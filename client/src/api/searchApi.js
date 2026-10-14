@@ -1,12 +1,12 @@
 const API_BASE = "https://ameet-in-the-middle.onrender.com";
 
-// הוספנו את הפילטרים החדשים לפונקציה כדי שיישלחו לשרת
 export async function searchMeetingPlaces({ 
   addresses, 
   optimizationMode, 
   minRating, 
   requireDineIn, 
-  includeCarts 
+  includeCarts,
+  openNow
 }) {
   const response = await fetch(`${API_BASE}/api/search`, {
     method: "POST",

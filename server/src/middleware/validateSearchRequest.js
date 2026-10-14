@@ -3,13 +3,13 @@ import { AppError } from "./errorHandler.js";
 const ALLOWED_MODES = new Set(["minimax", "sum"]);
 
 export function validateSearchRequest(req, _res, next) {
-  // קולטים את הפרמטרים החדשים, עם ערכי ברירת מחדל במידה ולא נשלחו
   const { 
     addresses, 
     optimizationMode,
     minRating = 0,
     requireDineIn = false,
-    includeCarts = false
+    includeCarts = false,
+    openNow = false // הנה, הוספנו את ההכרה בפיצ'ר החדש!
   } = req.body ?? {};
 
   if (!Array.isArray(addresses)) {
@@ -43,13 +43,14 @@ export function validateSearchRequest(req, _res, next) {
     );
   }
 
-  // מעבירים את הנתונים המאומתים לקונטרולר
+  // אורזים את הכל ומעבירים לשרת המרכזי
   req.validatedSearch = {
     addresses: trimmed,
     optimizationMode,
     minRating: Number(minRating) || 0,
     requireDineIn: Boolean(requireDineIn),
-    includeCarts: Boolean(includeCarts)
+    includeCarts: Boolean(includeCarts),
+    openNow: Boolean(openNow) // העברה רשמית הלאה
   };
   
   next();
