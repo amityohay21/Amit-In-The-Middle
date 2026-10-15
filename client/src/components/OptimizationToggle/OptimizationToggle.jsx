@@ -1,36 +1,45 @@
-const OPTIONS = [
-  {
-    value: "minimax",
-    label: "Minimax",
-    hint: "הוגנות — מקצר את הנסיעה הארוכה ביותר",
-  },
-  {
-    value: "sum",
-    label: "Sum of Times",
-    hint: "יעילות — ממזער את סכום זמני הנסיעה",
-  },
-];
+import React from 'react';
 
 export default function OptimizationToggle({ value, onChange }) {
   return (
     <fieldset className="optimization-toggle">
       <legend>שיטת אופטימיזציה</legend>
       <div className="optimization-toggle__options">
-        {OPTIONS.map((option) => (
-          <label key={option.value} className="optimization-toggle__option">
+        
+        {/* כפתור Minimax */}
+        <label className={`optimization-toggle__label ${value === "minimax" ? "active" : ""}`}>
+          <div className="optimization-toggle__radio-group">
+            <span className="optimization-toggle__title">Minimax</span>
             <input
               type="radio"
               name="optimizationMode"
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
+              value="minimax"
+              checked={value === "minimax"}
+              onChange={(e) => onChange(e.target.value)}
             />
-            <span>
-              <strong>{option.label}</strong>
-              <small>{option.hint}</small>
-            </span>
-          </label>
-        ))}
+          </div>
+          <span className="optimization-toggle__description">
+            שוויון בנטל — דואג שאף אחד לא "יאכל אותה" יותר מהשאר
+          </span>
+        </label>
+
+        {/* כפתור Sum of Times */}
+        <label className={`optimization-toggle__label ${value === "sum" ? "active" : ""}`}>
+          <div className="optimization-toggle__radio-group">
+            <span className="optimization-toggle__title">Sum of Times</span>
+            <input
+              type="radio"
+              name="optimizationMode"
+              value="sum"
+              checked={value === "sum"}
+              onChange={(e) => onChange(e.target.value)}
+            />
+          </div>
+          <span className="optimization-toggle__description">
+             קורבן למען הקבוצה — חוסך זמן נסיעה כללי, אבל מישהו ינהג יותר
+          </span>
+        </label>
+        
       </div>
     </fieldset>
   );
