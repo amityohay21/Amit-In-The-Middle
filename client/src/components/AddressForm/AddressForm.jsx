@@ -1,4 +1,5 @@
 import React from "react";
+import AddressInput from "./AddressInput";
 
 const getChipStyle = (isActive) => ({
   padding: "8px 16px",
@@ -55,13 +56,12 @@ export default function AddressForm({
                 value={participant.name}
                 onChange={(e) => onChange(index, "name", e.target.value)}
               />
-              <input
-                type="text"
+              {/* כאן הזרקנו את הקומפוננטה החכמה שיצרנו */}
+              <AddressInput
                 className="input-address"
-                // החזרנו את הפלייס-הולדר המדויק
                 placeholder={index === 0 ? "כתובת (למשל: האמהות 1, נס ציונה)" : "כתובת (למשל: תל אביב)"}
                 value={participant.address}
-                onChange={(e) => onChange(index, "address", e.target.value)}
+                onChange={(newAddress) => onChange(index, "address", newAddress)}
               />
             </div>
             {participants.length > 2 && (
