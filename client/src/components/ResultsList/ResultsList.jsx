@@ -22,7 +22,8 @@ const FilterChip = ({ label, checked, onChange }) => (
   </label>
 );
 
-export default function ResultsList({ results, searchRadius }) {
+// הוספנו את participants לפרופס שהקומפוננטה מקבלת!
+export default function ResultsList({ results, searchRadius, participants }) {
   // המצבים של הצ'קליסט - כברירת מחדל הכל מסומן (מוצג)
   const [categories, setCategories] = useState({
     cafe: true,
@@ -111,7 +112,8 @@ export default function ResultsList({ results, searchRadius }) {
       <div className="results__list">
         {filteredAndSortedResults.length > 0 ? (
           filteredAndSortedResults.map((place) => (
-            <ResultCard key={place.placeId} place={place} />
+            // הנה ההזרקה של המשתתפים לתוך הכרטיסייה!
+            <ResultCard key={place.placeId} place={place} participants={participants} />
           ))
         ) : (
           <p className="empty-state">אין מקומות העונים על תנאי הסינון שנבחרו.</p>

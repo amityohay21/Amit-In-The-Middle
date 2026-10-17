@@ -7,21 +7,20 @@ import { useSearch } from "../hooks/useSearch.js";
 
 export default function HomePage() {
   const {
-    addresses,
+    participants, // החלפנו את addresses ב-participants (שמכיל גם שם וגם כתובת)
     optimizationMode,
     setOptimizationMode,
     minRating, setMinRating,
     requireDineIn, setRequireDineIn,
     includeCarts, setIncludeCarts,
-    // הנה החוט החדש שמשכנו מהמוח:
     openNow, setOpenNow,
     results,
     searchRadius,
     isLoading,
     error,
-    addAddress,
-    removeAddress,
-    updateAddress,
+    addParticipant,    // שונה מ-addAddress
+    removeParticipant, // שונה מ-removeAddress
+    updateParticipant, // שונה מ-updateAddress
     search,
   } = useSearch();
 
@@ -42,10 +41,10 @@ export default function HomePage() {
       />
 
       <AddressForm
-        addresses={addresses}
-        onChange={updateAddress}
-        onAdd={addAddress}
-        onRemove={removeAddress}
+        participants={participants} // מעבירים את המשתתפים לטופס
+        onChange={updateParticipant} 
+        onAdd={addParticipant}
+        onRemove={removeParticipant}
         onSubmit={search}
         isLoading={isLoading}
         minRating={minRating}
@@ -54,14 +53,15 @@ export default function HomePage() {
         setRequireDineIn={setRequireDineIn}
         includeCarts={includeCarts}
         setIncludeCarts={setIncludeCarts}
-        // והנה אנחנו מחברים אותו לטופס:
         openNow={openNow}
         setOpenNow={setOpenNow}
       />
 
       <ErrorBanner message={error} />
       {isLoading ? <Loader /> : null}
-      <ResultsList results={results} searchRadius={searchRadius} />
+      
+      {/* מעבירים את המשתתפים גם לרשימת התוצאות כדי שהשמות יופיעו! */}
+      <ResultsList results={results} searchRadius={searchRadius} participants={participants} />
     </main>
   );
 }

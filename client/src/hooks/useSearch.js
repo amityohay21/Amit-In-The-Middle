@@ -2,33 +2,38 @@ import { useCallback, useState } from "react";
 import { searchMeetingPlaces } from "../api/searchApi.js";
 
 export function useSearch() {
-  const [addresses, setAddresses] = useState(["", ""]);
-  const [optimizationMode, setOptimizationMode] = useState("minimax");
+  // השינוי הענק: במקום סתם מחרוזות, שומרים גם שם וגם כתובת
+  const [participants, setParticipants] = useState([
+    { name: "", address: "" },
+    { name: "", address: "" }
+  ]);
   
-  // המצבים של הפילטרים 
+  const [optimizationMode, setOptimizationMode] = useState("minimax");
   const [minRating, setMinRating] = useState(0);
   const [requireDineIn, setRequireDineIn] = useState(false);
   const [includeCarts, setIncludeCarts] = useState(false);
-  const [openNow, setOpenNow] = useState(false); // הנה פתוח עכשיו!
+  const [openNow, setOpenNow] = useState(false);
 
   const [results, setResults] = useState(null);
   const [searchRadius, setSearchRadius] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const addAddress = useCallback(() => {
-    setAddresses((current) => (current.length >= 4 ? current : [...current, ""]));
+  const addParticipant = useCallback(() => {
+    setParticipants((current) => 
+      current.length >= 4 ? current : [...current, { name: "", address: "" }]
+    );
   }, []);
 
-  const removeAddress = useCallback((index) => {
-    setAddresses((current) =>
+  const removeParticipant = useCallback((index) => {
+    setParticipants((current) =>
       current.length <= 2 ? current : current.filter((_, i) => i !== index)
     );
   }, []);
 
-  const updateAddress = useCallback((index, value) => {
-    setAddresses((current) =>
-      current.map((address, i) => (i === index ? value : address))
+  const updateParticipant = useCallback((index, field, value) => {
+    setParticipants((current) =>
+      current.map((p, i) => (i === index ? { ...p, [field]: value } : p))
     );
   }, []);
 
@@ -37,13 +42,14 @@ export function useSearch() {
     setError(null);
 
     try {
+      // שולחים לשרת רק את הכתובות כדי שהאלגוריתם יעבוד כרגיל
       const data = await searchMeetingPlaces({
-        addresses: addresses.map((address) => address.trim()).filter(Boolean),
+        addresses: participants.map((p) => p.address.trim()).filter(Boolean),
         optimizationMode,
         minRating,
         requireDineIn,
         includeCarts,
-        openNow // נארז ונשלח לשרת ללא שגיאות
+        openNow
       });
       setResults(data.results);
       setSearchRadius(data.searchRadius);
@@ -54,23 +60,22 @@ export function useSearch() {
     } finally {
       setIsLoading(false);
     }
-  }, [addresses, optimizationMode, minRating, requireDineIn, includeCarts, openNow]);
+  }, [participants, optimizationMode, minRating, requireDineIn, includeCarts, openNow]);
 
   return {
-    addresses,
-    optimizationMode,
-    setOptimizationMode,
+    participants,
+    optimizationMode, setOptimizationMode,
     minRating, setMinRating,
     requireDineIn, setRequireDineIn,
     includeCarts, setIncludeCarts,
-    openNow, setOpenNow, // מועבר החוצה לטופס
+    openNow, setOpenNow,
     results,
     searchRadius,
     isLoading,
     error,
-    addAddress,
-    removeAddress,
-    updateAddress,
+    addParticipant,
+    removeParticipant,
+    updateParticipant,
     search,
   };
 }
