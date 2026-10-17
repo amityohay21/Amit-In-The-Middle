@@ -11,9 +11,11 @@ export function getGeocodeCallCount() {
   return geocodeCallCount;
 }
 
+// פונקציית עזר להשהיה חכמה
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
- * Geocode all addresses in parallel.
- * Fails with a clear per-address error instead of crashing the whole request.
+ * Geocode all addresses in parallel with Retry logic for Rate Limits.
  */
 export async function geocodeAddresses(addresses, apiKey) {
   return Promise.all(
@@ -23,28 +25,57 @@ export async function geocodeAddresses(addresses, apiKey) {
         return { ...cache.get(key), participantIndex, address };
       }
 
-      geocodeCallCount += 1;
-      console.log(
-        `[google] Geocoding call #${geocodeCallCount} for "${address}"`
-      );
-
       const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
       url.searchParams.set("address", address);
       url.searchParams.set("key", apiKey);
       url.searchParams.set("language", "iw");
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new AppError("Geocoding request failed", 502, {
-          participantIndex,
-          address,
-          httpStatus: response.status,
-        });
+      let attempts = 0;
+      const maxAttempts = 3;
+      let data;
+
+      while (attempts < maxAttempts) {
+        attempts += 1;
+        geocodeCallCount += 1;
+        console.log(`[google] Geocoding call #${geocodeCallCount} for "${address}" (Attempt ${attempts})`);
+
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          if (attempts < maxAttempts) {
+            await sleep(1000 * attempts);
+            continue;
+          }
+          throw new AppError("Geocoding request failed", 502, {
+            participantIndex,
+            address,
+            httpStatus: response.status,
+          });
+        }
+
+        data = await response.json();
+
+        // אם גוגל חוסם בגלל עומס, מחכים קצת ומנסים שוב!
+        if (data.status === "OVER_QUERY_LIMIT" || data.status === "UNKNOWN_ERROR") {
+          if (attempts < maxAttempts) {
+            console.warn(`[google] Rate limit hit for "${address}", retrying in ${attempts}s...`);
+            await sleep(1000 * attempts);
+            continue;
+          }
+          // אם גם אחרי 3 נסיונות זה נכשל, מחזירים סטטוס 429
+          throw new AppError("יש עומס רגעי על שרתי המפות. אנא נסו שוב בעוד כמה שניות.", 429, {
+            participantIndex,
+            address,
+            googleStatus: data.status,
+          });
+        }
+
+        // אם התשובה תקינה או שיש שגיאה לגיטימית, יוצאים מהלולאה
+        break;
       }
 
-      const data = await response.json();
-
-      if (data.status === "ZERO_RESULTS" || !data.results?.length) {
+      // קודם בודקים אם הכתובת באמת לא נמצאה (ורק אחרי ששללנו Rate Limit!)
+      if (data.status === "ZERO_RESULTS") {
         throw new AppError("Address not found", 400, {
           participantIndex,
           address,
@@ -52,6 +83,7 @@ export async function geocodeAddresses(addresses, apiKey) {
         });
       }
 
+      // כל שגיאה אחרת מגוגל
       if (data.status !== "OK") {
         throw new AppError("Geocoding failed", 502, {
           participantIndex,
@@ -62,13 +94,6 @@ export async function geocodeAddresses(addresses, apiKey) {
       }
 
       const result = data.results[0];
-      if (data.results.length > 1 && result.partial_match) {
-        throw new AppError("Address is ambiguous", 400, {
-          participantIndex,
-          address,
-          suggestions: data.results.slice(0, 5).map((item) => item.formatted_address),
-        });
-      }
 
       const location = {
         lat: result.geometry.location.lat,
