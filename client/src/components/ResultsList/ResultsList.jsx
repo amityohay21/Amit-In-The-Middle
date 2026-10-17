@@ -34,6 +34,7 @@ export default function ResultsList({ results, searchRadius, participants }) {
   const filteredAndSortedResults = useMemo(() => {
     if (!results) return [];
 
+    // 1. קודם כל מבצעים את הסינון (פילטרים)
     const filtered = results.filter((place) => {
       const types = place.types || [];
       const name = (place.name || "").toLowerCase();
@@ -51,11 +52,23 @@ export default function ResultsList({ results, searchRadius, participants }) {
       return categories.restaurant || categories.cafe;
     });
 
+    // פונקציית עזר לחישוב "רמת ההוגנות" (הפער בין הזמן הכי ארוך להכי קצר)
+    const getTimeGap = (place) => {
+      if (!place.travelTimes || place.travelTimes.length === 0) return 0;
+      const times = place.travelTimes.map(t => t.durationMinutes);
+      // מחשבים: מקסימום דקות פחות מינימום דקות (פער קטן = יותר הוגן)
+      return Math.max(...times) - Math.min(...times);
+    };
+
+    // 2. מבצעים את המיון
     if (sortByRating) {
+      // אם המשתמש לחץ על כפתור המיון לפי דירוג -> ממיינים לפי ציון גוגל
       return [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else {
+      // ברירת המחדל המנצחת: ממיינים מהפער הקטן ביותר (הכי הוגן) לגדול ביותר
+      return [...filtered].sort((a, b) => getTimeGap(a) - getTimeGap(b));
     }
 
-    return filtered;
   }, [results, categories, sortByRating]);
 
   const toggleCategory = (key) => {
@@ -68,7 +81,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
     <section className="results">
       <header className="results__header">
         <h2>תוצאות</h2>
-        {/* נמחק כאן בלוק רדיוס החיפוש! */}
       </header>
 
       <div className="filters-bar" style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
