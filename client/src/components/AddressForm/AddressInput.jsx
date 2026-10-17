@@ -6,32 +6,31 @@ export default function AddressInput({ value, onChange, placeholder, className }
   const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
-    // מוודאים שגוגל נטען
     if (!window.google) return;
 
-    // מחברים את שורת הטקסט לאלגוריתם ההשלמה של גוגל
     autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: "il" }, // מגביל חיפוש לישראל
+      componentRestrictions: { country: "il" },
       fields: ["formatted_address", "name"],
       types: ["geocode", "establishment"]
     });
 
-    // מאזינים לבחירה של המשתמש מהרשימה שנפתחת
-    autocompleteRef.current.addListener("place_changed", () => {
+    const listener = autocompleteRef.current.addListener("place_changed", () => {
       const place = autocompleteRef.current.getPlace();
       if (place && (place.formatted_address || place.name)) {
-        onChange(place.formatted_address || place.name);
+        // ההשהיה הזו פותרת את ההתנגשות של React מול גוגל בעת הלחיצה
+        setTimeout(() => {
+          onChange(place.formatted_address || place.name);
+        }, 0);
       }
     });
 
     return () => {
       if (window.google && autocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        window.google.maps.event.removeListener(listener);
       }
     };
   }, [onChange]);
 
-  // מנגנון מיקום נוכחי (GPS)
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
       alert("הדפדפן שלך לא תומך באיתור מיקום.");
@@ -42,7 +41,6 @@ export default function AddressInput({ value, onChange, placeholder, className }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        // ממירים את הנ.צ (קואורדינטות) לכתובת טקסט אמיתית
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
           setIsLocating(false);
@@ -60,6 +58,13 @@ export default function AddressInput({ value, onChange, placeholder, className }
     );
   };
 
+  // מניעת שליחת הטופס בטעות כשלוחצים אנטר כדי לבחור כתובת מגוגל
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div style={{ position: 'relative', flex: 2, display: 'flex', width: '100%' }}>
       <input
@@ -69,10 +74,10 @@ export default function AddressInput({ value, onChange, placeholder, className }
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown} // הוספנו את החסימה לכאן
         style={{ width: '100%', paddingLeft: '40px' }} 
       />
       
-      {/* כפתור "מיקום נוכחי" 📍 */}
       <button
         type="button"
         onClick={getCurrentLocation}
