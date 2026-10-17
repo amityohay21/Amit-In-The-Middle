@@ -40,7 +40,7 @@ export default function AddressForm({
       }}
     >
       <div className="form-header">
-        <h2>הסוף לריב הקבוע בוואטסאפ 🎯</h2>
+        <h2>מחשבים מסלול הוגן לכולם ⚖️</h2>
         <p>הזינו שמות וכתובות, ואנחנו נמצא את האמצע המושלם בשבילכם.</p>
       </div>
 
@@ -58,7 +58,8 @@ export default function AddressForm({
               <input
                 type="text"
                 className="input-address"
-                placeholder="כתובת / עיר"
+                // החזרנו את הפלייס-הולדר המדויק
+                placeholder={index === 0 ? "כתובת (למשל: האמהות 1, נס ציונה)" : "כתובת (למשל: תל אביב)"}
                 value={participant.address}
                 onChange={(e) => onChange(index, "address", e.target.value)}
               />

@@ -11,7 +11,6 @@ function primaryType(types, name) {
   return "מקום בילוי";
 }
 
-// שים לב שנוסף הפרופ participants!
 export default function ResultCard({ place, participants }) {
   const whatsappMessage = encodeURIComponent(
     `האמצע המושלם בשבילנו! 🎯\n\nניפגש ב-${place.name} 📍\nכתובת: ${place.vicinity}\n\n🚗 לניווט מהיר ב-Waze:\n${place.wazeUrl}`
@@ -27,20 +26,22 @@ export default function ResultCard({ place, participants }) {
         <div>
           <h3 style={{ margin: "0 0 8px 0", fontSize: "1.3rem", color: "var(--ink)" }}>{place.name}</h3>
           
-          {/* אזור התגיות החזותיות החדש */}
+          {/* אזור התגיות - עם הדירוג החי של גוגל */}
           <div className="badges-wrapper">
             <span className="badge badge--type">{placeType} {hasSeating && "🪑"}</span>
-            {place.rating >= 4.5 && <span className="badge badge--gold">⭐ {place.rating}</span>}
+            {place.rating > 0 && (
+              <span className="badge badge--gold">
+                ⭐ {place.rating} ({place.userRatingsTotal} ביקורות)
+              </span>
+            )}
             {place.userRatingsTotal >= 1000 && <span className="badge badge--gold">🏆 בחירת הקהל</span>}
             {place.business_status === "OPERATIONAL" && <span className="badge badge--green">🟢 פתוח</span>}
           </div>
         </div>
       </header>
 
-      {/* רשימת המשתתפים עם שמות מותאמים אישית */}
       <ul className="result-card__times">
         {place.travelTimes.map((item) => {
-          // משיכת השם מהטופס, או ברירת מחדל אם הושאר ריק
           const participantName = participants?.[item.participantIndex]?.name || `משתתף ${item.participantIndex + 1}`;
           return (
             <li key={item.participantIndex} style={{ display: "flex", justifyContent: "space-between" }}>

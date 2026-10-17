@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import ResultCard from "./ResultCard.jsx";
 
-// פונקציית עזר לעיצוב כפתורי הצ'קליסט (שייראו כמו תגיות אלגנטיות)
 const FilterChip = ({ label, checked, onChange }) => (
   <label style={{
     display: "inline-flex", alignItems: "center", gap: "6px",
@@ -16,15 +15,13 @@ const FilterChip = ({ label, checked, onChange }) => (
       type="checkbox" 
       checked={checked} 
       onChange={onChange} 
-      style={{ display: "none" }} // מסתירים את הריבוע המכוער של הדפדפן
+      style={{ display: "none" }} 
     />
     {checked ? "✓ " : ""}{label}
   </label>
 );
 
-// הוספנו את participants לפרופס שהקומפוננטה מקבלת!
 export default function ResultsList({ results, searchRadius, participants }) {
-  // המצבים של הצ'קליסט - כברירת מחדל הכל מסומן (מוצג)
   const [categories, setCategories] = useState({
     cafe: true,
     restaurant: true,
@@ -34,7 +31,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
   
   const [sortByRating, setSortByRating] = useState(false);
 
-  // סינון ומיון משולבים שעובדים מדויק ומהר על המכשיר (Client-side)
   const filteredAndSortedResults = useMemo(() => {
     if (!results) return [];
 
@@ -47,13 +43,11 @@ export default function ResultsList({ results, searchRadius, participants }) {
       const isCafe = types.includes("cafe");
       const isRestaurant = types.includes("restaurant") && !isCafe && !isBar && !isCart;
 
-      // בודקים אם הקטגוריה של המקום כרגע מסומנת ב-V אצל המשתמש
       if (isCart) return categories.cart;
       if (isBar) return categories.bar;
       if (isCafe) return categories.cafe;
       if (isRestaurant) return categories.restaurant;
       
-      // אם גוגל החזיר מקום לא מוגדר, נציג אותו אם לפחות בתי קפה או מסעדות מסומנים
       return categories.restaurant || categories.cafe;
     });
 
@@ -64,7 +58,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
     return filtered;
   }, [results, categories, sortByRating]);
 
-  // פונקציית עזר לשינוי מצב של צ'ק-בוקס ספציפי
   const toggleCategory = (key) => {
     setCategories(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -75,15 +68,10 @@ export default function ResultsList({ results, searchRadius, participants }) {
     <section className="results">
       <header className="results__header">
         <h2>תוצאות</h2>
-        {searchRadius != null ? (
-          <p>רדיוס חיפוש: {Math.round(searchRadius / 1000)} ק״מ</p>
-        ) : null}
+        {/* נמחק כאן בלוק רדיוס החיפוש! */}
       </header>
 
-      {/* סרגל סינונים ומיון */}
       <div className="filters-bar" style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
-        
-        {/* כפתורי הצ'קליסט החדשים שלנו */}
         <FilterChip label="בתי קפה" checked={categories.cafe} onChange={() => toggleCategory("cafe")} />
         <FilterChip label="מסעדות" checked={categories.restaurant} onChange={() => toggleCategory("restaurant")} />
         <FilterChip label="ברים" checked={categories.bar} onChange={() => toggleCategory("bar")} />
@@ -112,7 +100,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
       <div className="results__list">
         {filteredAndSortedResults.length > 0 ? (
           filteredAndSortedResults.map((place) => (
-            // הנה ההזרקה של המשתתפים לתוך הכרטיסייה!
             <ResultCard key={place.placeId} place={place} participants={participants} />
           ))
         ) : (
