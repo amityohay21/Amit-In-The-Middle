@@ -1,15 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
-
 :root {
   color-scheme: light;
-  --bg: #f9f8f6;
+  /* שינינו את הרקע המשעמם למשהו טיפה יותר חי ופסטלי */
+  --bg: #fffbf7; 
   --surface: #ffffff;
   --ink: #2d2a26;
   --muted: #827a71;
-  --accent: #ff6b35; /* כתום חי ומודרני */
+  --accent: #ff6b35; 
   --accent-dark: #e55a2b;
   --accent-light: #ffe8df;
-  --line: #f0ebe4;
+  --line: #e3ddd7; /* קו קצת יותר מודגש למסגרות */
   --danger: #e63946;
   font-family: "Rubik", "Heebo", Arial, sans-serif;
 }
@@ -17,80 +16,23 @@
 body {
   margin: 0;
   background-color: var(--bg);
-  /* רקע עם טקסטורה עדינה מאוד */
-  background-image:
-    radial-gradient(at 0% 0%, hsla(28,100%,74%,0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(200,100%,74%,0.08) 0px, transparent 50%);
+  /* הוספנו גרדיאנט עדין מאד לרקע */
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(28,100%,74%,0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(200,100%,74%,0.1) 0px, transparent 50%);
+  background-attachment: fixed;
   color: var(--ink);
   direction: rtl;
 }
 
-.page {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 2.5rem 1.25rem 4rem;
-}
-
-/* Glassmorphism & Soft UI Panels */
-.address-form,
-.optimization-toggle,
-.result-card,
-.error-banner {
-  background: var(--surface);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 12px 32px rgba(45, 42, 38, 0.04), 0 4px 8px rgba(45, 42, 38, 0.02);
-  border-radius: 24px;
-  padding: 1.8rem;
-  margin-top: 1.2rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.result-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(45, 42, 38, 0.08);
-}
-
-/* Form Styling */
-.form-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.form-header h2 {
-  font-size: 1.5rem;
-  margin: 0 0 0.5rem 0;
-  color: var(--ink);
-}
-
-.form-header p {
-  color: var(--muted);
-  margin: 0;
-  font-size: 1rem;
-}
-
-.participant-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  align-items: center;
-}
-
-.participant-inputs {
-  display: flex;
-  gap: 0.75rem;
-  flex: 1;
-}
-
-.input-name { flex: 1; }
-.input-address { flex: 2; }
-
+/* --- עדכון שדות טקסט (מסגרות ורקע) --- */
 input[type="text"] {
   border: 2px solid var(--line);
-  background: #faf9f7;
+  background: #ffffff;
   border-radius: 12px;
   padding: 0.8rem 1rem;
   font: inherit;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
 }
 
@@ -98,29 +40,12 @@ input[type="text"]:focus {
   border-color: var(--accent);
   background: var(--surface);
   outline: none;
-  box-shadow: 0 0 0 4px var(--accent-light);
+  /* תאורה הכתומה שהחברים ביקשו כשנכנסים לשדה */
+  box-shadow: 0 0 0 4px var(--accent-light), 0 2px 8px rgba(255, 107, 53, 0.1);
+  transform: translateY(-1px);
 }
 
-.button--remove {
-  background: #ffeeee;
-  color: var(--danger);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.button--remove:hover {
-  background: #ffd6d6;
-  transform: scale(1.05);
-}
-
-/* Buttons */
+/* --- עדכון כפתור ראשי ("נשימה" וקפיץ) --- */
 .button {
   border: 0;
   border-radius: 999px;
@@ -128,62 +53,44 @@ input[type="text"]:focus {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
-.button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
 .button--primary {
   background: var(--accent);
   color: white;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+  /* הצללה נושמת כתומה ורכה שמושכת את העין */
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 107, 53, 0.2);
+  animation: pulseButton 3s infinite; 
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--accent-dark);
-  transform: translateY(-2px);
+  background: #ff7847; /* מתבהר בלחיצה כמו שביקשו */
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+  animation: none; /* עוצרים את הנשימה כשעולים עליו */
 }
 
-.button--ghost {
-  background: transparent;
-  color: var(--accent-dark);
+/* אפקט הלחיצה הפיזית! מכווץ אותו פנימה לשנייה */
+.button--primary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
 }
 
-/* Visual Badges (The "Non-AI" Look) */
-.badges-wrapper {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
+/* אנימציית נשימה עדינה לכפתור המרכזי */
+@keyframes pulseButton {
+  0% { box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 107, 53, 0.4); }
+  70% { box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 10px rgba(255, 107, 53, 0); }
+  100% { box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 107, 53, 0); }
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
+/* הקפצת כרטיסיות באפקט 3D */
+.result-card, .address-form {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  border: 1px solid var(--line);
 }
 
-.badge--type { background: #f0ebe4; color: var(--ink); }
-.badge--gold {
-  background: linear-gradient(135deg, #fff9e6, #fff0c2);
-  color: #9e6a00;
-  border: 1px solid #ffe38f;
-}
-.badge--green { background: #e3f8e8; color: #1b7a31; }
-
-.result-card__times {
-  background: #faf9f7;
-  border-radius: 16px;
-  padding: 1rem;
-  margin: 1rem 0;
-  list-style: none;
-}
-
-.result-card__times li {
-  padding: 0.25rem 0;
-  font-size: 0.95rem;
+.result-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(45, 42, 38, 0.08), 0 1px 3px rgba(0,0,0,0.05);
 }

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import "./StoryLoader.css";
 
-const STORY_MESSAGES = [
+// הוצאנו את משפטי ברירת המחדל החוצה. 
+// עכשיו הקומפוננטה מקבלת את messages כפרמטר (Prop), ואם לא העבירו לה - היא משתמשת באלו.
+const DEFAULT_MESSAGES = [
   "מאתר את האזור ההוגן ביותר לכולם...",
   "מחשב זמני נסיעה ופקקים...",
   "סורק בתי קפה ומסעדות שוות...",
@@ -8,62 +11,37 @@ const STORY_MESSAGES = [
   "מרכיב את ההמלצות הסופיות..."
 ];
 
-export default function Loader() {
+export default function Loader({ messages = DEFAULT_MESSAGES }) {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
-    // מתחלף כל 1.8 שניות כדי לייצר תחושה של עבודה מתקדמת
+    // 1. טיפול בנעילת הגלילה של הדף ברקע
+    document.body.style.overflow = "hidden";
+
+    // 2. הפעלת הטיימר של המשפטים
     const timer = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % STORY_MESSAGES.length);
+      setMessageIndex((prev) => (prev + 1) % messages.length);
     }, 1800);
 
-    // ניקוי הטיימר כשהקומפוננטה (ההמתנה) מסתיימת
-    return () => clearInterval(timer);
-  }, []);
+    // 3. פונקציית הניקוי (Cleanup) כשהטעינה מסתיימת והחלון נסגר
+    return () => {
+      clearInterval(timer);
+      document.body.style.overflow = "unset"; // משחרר את נעילת הגלילה
+    };
+  }, [messages.length]);
 
   return (
-    <div 
-      className="loader" 
-      role="status" 
-      aria-live="polite"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2.5rem 1rem",
-        gap: "1.2rem",
-        background: "var(--surface)",
-        borderRadius: "24px",
-        border: "1px solid rgba(255, 255, 255, 0.8)",
-        boxShadow: "0 12px 32px rgba(45, 42, 38, 0.04)",
-        marginTop: "1.2rem",
-        textAlign: "center"
-      }}
-    >
-      {/* ספינר מוגדל ואלגנטי יותר */}
+    <div className="loader-overlay">
       <div 
-        className="loader__spinner" 
-        style={{ 
-          width: "42px", 
-          height: "42px", 
-          borderWidth: "3px",
-          borderColor: "var(--line)",
-          borderTopColor: "var(--accent)" 
-        }} 
-      />
-      
-      {/* הטקסט המתחלף */}
-      <span 
-        style={{ 
-          fontSize: "1.15rem", 
-          fontWeight: "500", 
-          color: "var(--accent-dark)",
-          transition: "opacity 0.3s ease"
-        }}
+        className="loader-modal" 
+        role="status" 
+        aria-live="polite"
       >
-        {STORY_MESSAGES[messageIndex]}
-      </span>
+        <div className="loader__spinner"></div>
+        <span className="loader__text">
+          {messages[messageIndex]}
+        </span>
+      </div>
     </div>
   );
 }
