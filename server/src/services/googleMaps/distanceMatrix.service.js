@@ -25,6 +25,8 @@ export function getDistanceMatrixStats() {
   };
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function fetchMatrix(origins, destinations, apiKey) {
   const url = new URL(
     "https://maps.googleapis.com/maps/api/distancematrix/json"
@@ -41,28 +43,50 @@ async function fetchMatrix(origins, destinations, apiKey) {
   url.searchParams.set("key", apiKey);
 
   const elements = origins.length * destinations.length;
-  distanceMatrixCallCount += 1;
-  distanceMatrixElementCount += elements;
-  console.log(
-    `[google] Distance Matrix call #${distanceMatrixCallCount} (${elements} elements, total ${distanceMatrixElementCount})`
-  );
+  
+  let attempts = 0;
+  const maxAttempts = 3;
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new AppError("Distance Matrix request failed", 502, {
-      httpStatus: response.status,
-    });
+  while (attempts < maxAttempts) {
+    attempts += 1;
+    distanceMatrixCallCount += 1;
+    distanceMatrixElementCount += elements;
+    console.log(`[google] Distance Matrix call #${distanceMatrixCallCount} (${elements} elements, total ${distanceMatrixElementCount}) - Attempt ${attempts}`);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      if (attempts < maxAttempts) {
+        await sleep(1000 * attempts);
+        continue;
+      }
+      throw new AppError("Distance Matrix request failed", 502, {
+        httpStatus: response.status,
+      });
+    }
+
+    const data = await response.json();
+    
+    // זיהוי עומס רגעי
+    if (data.status === "OVER_QUERY_LIMIT" || data.status === "UNKNOWN_ERROR") {
+      if (attempts < maxAttempts) {
+        console.warn(`[google] Rate limit hit for Distance Matrix, retrying in ${attempts}s...`);
+        await sleep(1000 * attempts);
+        continue;
+      }
+      throw new AppError("יש עומס רגעי על שרתי המפות. אנא נסו שוב בעוד כמה שניות.", 429, {
+        googleStatus: data.status,
+      });
+    }
+
+    if (data.status !== "OK") {
+      throw new AppError("Distance Matrix failed", 502, {
+        googleStatus: data.status,
+        errorMessage: data.error_message,
+      });
+    }
+
+    return data;
   }
-
-  const data = await response.json();
-  if (data.status !== "OK") {
-    throw new AppError("Distance Matrix failed", 502, {
-      googleStatus: data.status,
-      errorMessage: data.error_message,
-    });
-  }
-
-  return data;
 }
 
 /**
@@ -82,6 +106,11 @@ export async function getTravelTimes(origins, destinations, apiKey) {
 
   let destOffset = 0;
   for (const batch of batches) {
+    // השהיה קטנה בין שליחת חבילות לגוגל כדי למנוע יצירת עומס אצלם מלכתחילה!
+    if (destOffset > 0) {
+      await sleep(300); 
+    }
+
     const data = await fetchMatrix(origins, batch, apiKey);
 
     data.rows.forEach((row, originIndex) => {
