@@ -7,7 +7,7 @@ import { useSearch } from "../hooks/useSearch.js";
 
 export default function HomePage() {
   const {
-    participants, // החלפנו את addresses ב-participants (שמכיל גם שם וגם כתובת)
+    participants,
     optimizationMode,
     setOptimizationMode,
     minRating, setMinRating,
@@ -18,22 +18,24 @@ export default function HomePage() {
     searchRadius,
     isLoading,
     error,
-    addParticipant,    // שונה מ-addAddress
-    removeParticipant, // שונה מ-removeAddress
-    updateParticipant, // שונה מ-updateAddress
+    addParticipant,
+    removeParticipant,
+    updateParticipant,
     search,
   } = useSearch();
 
   return (
     <main className="page">
-      <header className="hero">
-        <p className="eyebrow">Ameet In The Middle</p>
-        <h1>איפה הכי שווה להיפגש?</h1>
-        <p>
-          הזינו 2–4 כתובות, בחרו את השיטה המועדפת עליכם, וקבלו בתי קפה, מסעדות וברים
-          עם זמני נסיעה מאוזנים ומעודכנים בלייב!
-        </p>
-      </header>
+      {/* כותרת ממותגת חדשה */}
+      <header className="brand-header">
+  <div className="brand-badge">
+    <span>📍</span> נקודת מפגש הוגנת
+  </div>
+  <h1 className="brand-title">Meet In The Middle</h1>
+  <p className="brand-subtitle">
+    הזינו 2–4 כתובות, בחרו את שיטת האיזון וקבלו מקומות מפגש שווים עם זמני נסיעה מדויקים בלייב!
+  </p>
+</header>
 
       <OptimizationToggle
         value={optimizationMode}
@@ -41,7 +43,7 @@ export default function HomePage() {
       />
 
       <AddressForm
-        participants={participants} // מעבירים את המשתתפים לטופס
+        participants={participants}
         onChange={updateParticipant} 
         onAdd={addParticipant}
         onRemove={removeParticipant}
@@ -60,7 +62,6 @@ export default function HomePage() {
       <ErrorBanner message={error} />
       {isLoading ? <Loader /> : null}
       
-      {/* מעבירים את המשתתפים גם לרשימת התוצאות כדי שהשמות יופיעו! */}
       <ResultsList results={results} searchRadius={searchRadius} participants={participants} />
     </main>
   );
