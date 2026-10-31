@@ -2,24 +2,26 @@
 
 :root {
   color-scheme: light;
-  --bg: #fffbf7; 
+  /* פלטת אינדיגו-סלייט: חיה, קרירה, יוקרתית ולא מכאיבה בעיניים */
+  --bg: #F8FAFC; 
   --surface: #ffffff;
-  --ink: #2d2a26;
-  --muted: #827a71;
-  --accent: #ff6b35; 
-  --accent-dark: #e55a2b;
-  --accent-light: #ffe8df;
-  --line: #e3ddd7;
-  --danger: #e63946;
+  --ink: #0F172A;
+  --muted: #64748B;
+  --accent: #6366F1; /* כחול אינדיגו מודרני */
+  --accent-dark: #4F46E5;
+  --accent-light: #E0E7FF;
+  --line: #E2E8F0;
+  --danger: #F43F5E;
   font-family: "Rubik", "Heebo", Arial, sans-serif;
 }
 
 body {
   margin: 0;
   background-color: var(--bg);
+  /* גרדיאנט רקע קריר ורגוע של מים/שמיים */
   background-image: 
-    radial-gradient(at 0% 0%, hsla(28,100%,74%,0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(200,100%,74%,0.1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(238, 100%, 80%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(199, 100%, 80%, 0.15) 0px, transparent 50%);
   background-attachment: fixed;
   color: var(--ink);
   direction: rtl;
@@ -58,7 +60,7 @@ body {
 .error-banner {
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: 0 12px 32px rgba(45, 42, 38, 0.04), 0 4px 8px rgba(45, 42, 38, 0.02);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04), 0 4px 8px rgba(15, 23, 42, 0.02);
   border-radius: 24px;
   padding: 1.8rem;
   margin-top: 1.2rem;
@@ -67,7 +69,7 @@ body {
 
 .result-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(45, 42, 38, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0,0,0,0.05);
 }
 
 /* --- טופס שדות הטקסט (כתובות) --- */
@@ -102,11 +104,11 @@ input[type="text"]:focus {
   border-color: var(--accent);
   background: var(--surface);
   outline: none;
-  box-shadow: 0 0 0 4px var(--accent-light), 0 2px 8px rgba(255, 107, 53, 0.1);
+  box-shadow: 0 0 0 4px var(--accent-light), 0 2px 8px rgba(99, 102, 241, 0.1);
   transform: translateY(-1px);
 }
 
-/* --- כפתורים --- */
+/* --- כפתורים ראשיים (חיפוש) --- */
 .button {
   border: 0;
   border-radius: 999px;
@@ -122,24 +124,24 @@ input[type="text"]:focus {
 .button--primary {
   background: var(--accent);
   color: white;
-  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 107, 53, 0.2);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3), 0 0 0 0 rgba(99, 102, 241, 0.2);
   animation: pulseButton 3s infinite; 
 }
 
 .button--primary:hover:not(:disabled) {
-  background: #ff7847; 
+  background: var(--accent-dark); 
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
   animation: none; 
 }
 
 .button--primary:active:not(:disabled) {
   transform: translateY(1px) scale(0.97);
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
 }
 
 .button--remove {
-  background: #ffeeee;
+  background: #FFE4E6;
   color: var(--danger);
   border: none;
   border-radius: 50%;
@@ -153,14 +155,14 @@ input[type="text"]:focus {
 }
 
 .button--remove:hover {
-  background: #ffd6d6;
+  background: #FECDD3;
   transform: scale(1.05);
 }
 
 @keyframes pulseButton {
-  0% { box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 107, 53, 0.4); }
-  70% { box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 10px rgba(255, 107, 53, 0); }
-  100% { box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 107, 53, 0); }
+  0% { box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3), 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  70% { box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3), 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3), 0 0 0 0 rgba(99, 102, 241, 0); }
 }
 
 /* --- תגיות סינון (Badges) --- */
@@ -181,11 +183,11 @@ input[type="text"]:focus {
   font-weight: 600;
 }
 
-.badge--type { background: #f0ebe4; color: var(--ink); }
-.badge--gold { background: linear-gradient(135deg, #fff9e6, #fff0c2); color: #9e6a00; border: 1px solid #ffe38f; }
-.badge--green { background: #e3f8e8; color: #1b7a31; }
+.badge--type { background: var(--line); color: var(--ink); }
+.badge--gold { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; border: 1px solid #FCD34D; }
+.badge--green { background: #D1FAE5; color: #065F46; }
 
-/* --- תיקון פריסת כרטיסיות התוצאות (RTL) --- */
+/* --- פריסת כרטיסיות התוצאות --- */
 .result-card {
   display: flex;
   flex-direction: column;
@@ -196,7 +198,7 @@ input[type="text"]:focus {
   padding: 0;
   margin: 1.25rem 0;
   list-style: none;
-  background: #faf9f7;
+  background: #F8FAFC;
   border-radius: 12px;
   border: 1px solid var(--line);
   overflow: hidden;
@@ -216,7 +218,7 @@ input[type="text"]:focus {
   border-bottom: none;
 }
 
-/* שורת הכפתורים למטה (Waze, תפריט, וואטסאפ) */
+/* --- העיצוב החדש לכפתורי Waze, וואטסאפ ותפריט --- */
 .result-card > div:last-of-type,
 .result-card .button-group {
   display: flex;
@@ -225,11 +227,27 @@ input[type="text"]:focus {
 }
 
 .result-card .button {
-  flex: 1; /* מחלק את הרוחב שווה בשווה בין הכפתורים */
+  flex: 1; 
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0.8rem;
   font-size: 0.95rem;
+  font-weight: 600;
   border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05); /* מסגרת זכוכית עדינה */
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08); /* הצללה תלת-ממדית שקטה */
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* אפקט הריחוף וההארה כשעוברים עליהם עם העכבר */
+.result-card .button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
+  filter: brightness(1.05);
+}
+
+.result-card .button:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
 }
