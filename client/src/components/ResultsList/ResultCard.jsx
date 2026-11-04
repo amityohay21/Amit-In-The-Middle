@@ -86,7 +86,7 @@ export default function ResultCard({ place, participants, isShareMode, isSelecte
               Waze 🚗
             </a>
             <a className="button" href={whatsappUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#25D366", color: "#fff", textDecoration: "none", fontSize: "14px", flex: "1", textAlign: "center" }}>
-              שתף בודד
+              שתף לוואטצאפ
             </a>
           </div>
         )}
