@@ -3,6 +3,7 @@ import OptimizationToggle from "../components/OptimizationToggle/OptimizationTog
 import ResultsList from "../components/ResultsList/ResultsList.jsx";
 import Loader from "../components/shared/Loader.jsx";
 import ErrorBanner from "../components/shared/ErrorBanner.jsx";
+import LegalModal from "../components/shared/LegalModal.jsx"; // הייבוא נמצא כאן למעלה
 import { useSearch } from "../hooks/useSearch.js";
 
 export default function HomePage() {
@@ -28,14 +29,14 @@ export default function HomePage() {
     <main className="page">
       {/* כותרת ממותגת חדשה */}
       <header className="brand-header">
-  <div className="brand-badge">
-    <span>📍</span> נקודת מפגש הוגנת
-  </div>
-  <h1 className="brand-title">Meet In The Middle</h1>
-  <p className="brand-subtitle">
-    הזינו 2–4 כתובות, בחרו את שיטת האיזון וקבלו מקומות מפגש שווים עם זמני נסיעה מדויקים בלייב!
-  </p>
-</header>
+        <div className="brand-badge">
+          <span>📍</span> נקודת מפגש הוגנת
+        </div>
+        <h1 className="brand-title">Meet In The Middle</h1>
+        <p className="brand-subtitle">
+          הזינו 2–4 כתובות, בחרו את שיטת האיזון וקבלו מקומות מפגש שווים עם זמני נסיעה מדויקים בלייב!
+        </p>
+      </header>
 
       <OptimizationToggle
         value={optimizationMode}
@@ -63,6 +64,9 @@ export default function HomePage() {
       {isLoading ? <Loader /> : null}
       
       <ResultsList results={results} searchRadius={searchRadius} participants={participants} />
+      
+      {/* מודל תנאי השימוש והפרטיות - יושב בתחתית העמוד */}
+      <LegalModal />
     </main>
   );
 }
