@@ -71,7 +71,7 @@ export default function OptimizationToggle({ value, onChange }) {
               🦸‍♂️ אחד בשביל כולם וכולם בשביל אחד
             </h3>
             <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.95rem", lineHeight: "1.4" }}>
-              חוסך זמן נסיעה כללי לקבוצה, אבל יכול להיות שמישהו אחד ייסע יותר מהשאר.
+              חוסך זמן נסיעה כללי לקבוצה, אבל יכול להיות שמישהו אחד ייסע יותר מכולם.
             </p>
           </div>
         </label>
