@@ -30,11 +30,49 @@ export default function ResultsList({ results, searchRadius, participants }) {
   });
   
   const [sortByRating, setSortByRating] = useState(false);
+  
+  // --- ניהול מצב "התייעצות קבוצתית" ---
+  const [isShareMode, setIsShareMode] = useState(false);
+  const [selectedPlaces, setSelectedPlaces] = useState([]);
+
+  const toggleSelection = (place) => {
+    const isSelected = selectedPlaces.some(p => p.placeId === place.placeId);
+    if (isSelected) {
+      setSelectedPlaces(selectedPlaces.filter(p => p.placeId !== place.placeId));
+    } else {
+      if (selectedPlaces.length < 3) {
+        setSelectedPlaces([...selectedPlaces, place]);
+      } else {
+        alert("ניתן לבחור עד 3 מקומות להתייעצות.");
+      }
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    if (selectedPlaces.length === 0) return;
+    
+    let text = "היי! מצאתי כמה מקומות שיוצאים בדיוק באמצע הדרך לכולנו דרך Meet In The Middle 📍 איפה יושבים?\n\n";
+    
+    selectedPlaces.forEach((place, index) => {
+      // שליפת זמן הנסיעה הארוך ביותר (הגרוע ביותר) לאותו מקום
+      const maxTime = Math.max(...place.travelTimes.map(t => t.durationMinutes));
+      text += `${index + 1}️⃣ *${place.name}*\n🚗 עד ${maxTime} דק' נסיעה לכולם\n🌐 פרטים ותפריט: ${place.googleSearchUrl}\n\n`;
+    });
+    
+    text += "תצביעו! 🎯";
+    
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, "_blank");
+    
+    // איפוס אחרי השליחה
+    setIsShareMode(false);
+    setSelectedPlaces([]);
+  };
+  // ------------------------------------
 
   const filteredAndSortedResults = useMemo(() => {
     if (!results) return [];
 
-    // 1. קודם כל מבצעים את הסינון (פילטרים)
     const filtered = results.filter((place) => {
       const types = place.types || [];
       const name = (place.name || "").toLowerCase();
@@ -52,23 +90,17 @@ export default function ResultsList({ results, searchRadius, participants }) {
       return categories.restaurant || categories.cafe;
     });
 
-    // פונקציית עזר לחישוב "רמת ההוגנות" (הפער בין הזמן הכי ארוך להכי קצר)
     const getTimeGap = (place) => {
       if (!place.travelTimes || place.travelTimes.length === 0) return 0;
       const times = place.travelTimes.map(t => t.durationMinutes);
-      // מחשבים: מקסימום דקות פחות מינימום דקות (פער קטן = יותר הוגן)
       return Math.max(...times) - Math.min(...times);
     };
 
-    // 2. מבצעים את המיון
     if (sortByRating) {
-      // אם המשתמש לחץ על כפתור המיון לפי דירוג -> ממיינים לפי ציון גוגל
       return [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else {
-      // ברירת המחדל המנצחת: ממיינים מהפער הקטן ביותר (הכי הוגן) לגדול ביותר
       return [...filtered].sort((a, b) => getTimeGap(a) - getTimeGap(b));
     }
-
   }, [results, categories, sortByRating]);
 
   const toggleCategory = (key) => {
@@ -82,6 +114,35 @@ export default function ResultsList({ results, searchRadius, participants }) {
       <header className="results__header">
         <h2>תוצאות</h2>
       </header>
+
+      {/* --- באנר התייעצות קבוצתית --- */}
+      <div style={{ background: "var(--surface)", padding: "16px", borderRadius: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--line)", flexWrap: "wrap", gap: "12px" }}>
+        {isShareMode ? (
+          <>
+            <div>
+              <h3 style={{ margin: "0 0 4px 0", color: "var(--accent-dark)", fontSize: "1.1rem" }}>מצב התייעצות</h3>
+              <p style={{ margin: 0, fontSize: "14px", color: "var(--muted)" }}>בחר עד 3 מקומות לשיתוף בקבוצה</p>
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <button className="button" onClick={() => {setIsShareMode(false); setSelectedPlaces([]);}} style={{ backgroundColor: "#FFE4E6", color: "var(--danger)", padding: "8px 16px" }}>ביטול</button>
+              <button className="button button--primary" onClick={handleShareWhatsApp} disabled={selectedPlaces.length === 0} style={{ padding: "8px 16px" }}>
+                שלח לוואטסאפ ({selectedPlaces.length}/3)
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <h3 style={{ margin: "0 0 4px 0", color: "var(--ink)", fontSize: "1.1rem" }}>רוצה להתייעץ עם כולם?</h3>
+              <p style={{ margin: 0, fontSize: "14px", color: "var(--muted)" }}>צור הודעת בחירה ישר לוואטסאפ</p>
+            </div>
+            <button className="button button--primary" onClick={() => setIsShareMode(true)} style={{ padding: "8px 16px" }}>
+              💬 התייעצות בקבוצה
+            </button>
+          </>
+        )}
+      </div>
+      {/* ----------------------------- */}
 
       <div className="filters-bar" style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
         <FilterChip label="בתי קפה" checked={categories.cafe} onChange={() => toggleCategory("cafe")} />
@@ -112,7 +173,14 @@ export default function ResultsList({ results, searchRadius, participants }) {
       <div className="results__list">
         {filteredAndSortedResults.length > 0 ? (
           filteredAndSortedResults.map((place) => (
-            <ResultCard key={place.placeId} place={place} participants={participants} />
+            <ResultCard 
+              key={place.placeId} 
+              place={place} 
+              participants={participants}
+              isShareMode={isShareMode}
+              isSelected={selectedPlaces.some(p => p.placeId === place.placeId)}
+              onToggleSelect={toggleSelection}
+            />
           ))
         ) : (
           <p className="empty-state">אין מקומות העונים על תנאי הסינון שנבחרו.</p>
