@@ -1,98 +1,82 @@
-import React from 'react';
+import React from "react";
 
 export default function OptimizationToggle({ value, onChange }) {
   return (
-    <div className="optimization-toggle" style={{ border: 'none', boxShadow: 'none', padding: '0', marginTop: '1.5rem', background: 'transparent' }}>
-      <h3 style={{ fontSize: '1.1rem', margin: '0 0 12px 0', color: 'var(--ink)' }}>
-        מה יותר חשוב לכם?
-      </h3>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <section className="optimization-toggle">
+      <div className="form-header">
+        <h2>איך בוחרים את האמצע?</h2>
+        <p>בחרו את שיטת החישוב שמתאימה ליציאה שלכם</p>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         
-        {/* כרטיסיית Minimax */}
-        <label 
+        {/* שיטה 1: שוויון בנטל */}
+        <label
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '16px',
-            borderRadius: '16px',
-            border: `2px solid ${value === 'minimax' ? 'var(--accent)' : 'var(--line)'}`,
-            background: value === 'minimax' ? 'var(--accent-light)' : 'var(--surface)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            display: "flex",
+            gap: "1rem",
+            padding: "1.2rem",
+            border: value === "minimax" ? "2px solid var(--accent)" : "1px solid var(--line)",
+            borderRadius: "16px",
+            background: value === "minimax" ? "var(--surface)" : "#f8fafc",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            boxShadow: value === "minimax" ? "0 4px 12px rgba(99, 102, 241, 0.15)" : "none",
+            alignItems: "flex-start"
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-            {/* כפתור רדיו מעוצב אישית */}
-            <div style={{
-              width: '22px', height: '22px', borderRadius: '50%', 
-              border: `2px solid ${value === 'minimax' ? 'var(--accent)' : '#ccc'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', 
-              background: '#fff', flexShrink: 0
-            }}>
-              {value === 'minimax' && <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--accent)' }} />}
-            </div>
-            
-            <input 
-              type="radio" 
-              name="optMode" 
-              value="minimax" 
-              checked={value === 'minimax'} 
-              onChange={(e) => onChange(e.target.value)} 
-              style={{ display: 'none' }} 
-            />
-            <strong style={{ fontSize: '1.15rem', color: value === 'minimax' ? 'var(--accent-dark)' : 'var(--ink)' }}>
-              Minimax
-            </strong>
+          <input
+            type="radio"
+            name="optimization"
+            value="minimax"
+            checked={value === "minimax"}
+            onChange={(e) => onChange(e.target.value)}
+            style={{ marginTop: "4px", accentColor: "var(--accent)", transform: "scale(1.2)" }}
+          />
+          <div>
+            <h3 style={{ margin: "0 0 6px 0", color: "var(--ink)", fontSize: "1.1rem" }}>
+              ⚖️ שוויון בנטל
+            </h3>
+            <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.95rem", lineHeight: "1.4" }}>
+              כולם נוסעים פחות או יותר אותו הזמן, אף אחד לא אוכל אותה יותר מהשאר.
+            </p>
           </div>
-          <span style={{ color: 'var(--muted)', fontSize: '0.95rem', paddingRight: '34px', lineHeight: '1.4' }}>
-            שוויון בנטל — דואג שאף אחד לא "יאכל אותה" יותר מהשאר
-          </span>
         </label>
 
-        {/* כרטיסיית MinAverage (לשעבר Sum of Times) */}
-        <label 
+        {/* שיטה 2: אחד בשביל כולם */}
+        <label
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '16px',
-            borderRadius: '16px',
-            border: `2px solid ${value === 'sum' ? 'var(--accent)' : 'var(--line)'}`,
-            background: value === 'sum' ? 'var(--accent-light)' : 'var(--surface)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            display: "flex",
+            gap: "1rem",
+            padding: "1.2rem",
+            border: value === "minavg" ? "2px solid var(--accent)" : "1px solid var(--line)",
+            borderRadius: "16px",
+            background: value === "minavg" ? "var(--surface)" : "#f8fafc",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            boxShadow: value === "minavg" ? "0 4px 12px rgba(99, 102, 241, 0.15)" : "none",
+            alignItems: "flex-start"
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-            {/* כפתור רדיו מעוצב אישית */}
-            <div style={{
-              width: '22px', height: '22px', borderRadius: '50%', 
-              border: `2px solid ${value === 'sum' ? 'var(--accent)' : '#ccc'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', 
-              background: '#fff', flexShrink: 0
-            }}>
-              {value === 'sum' && <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--accent)' }} />}
-            </div>
-
-            {/* שים לב: אנחנו משאירים את ה-value כ-'sum' כדי לא לשבור את השרת, אבל מציגים MinAverage */}
-            <input 
-              type="radio" 
-              name="optMode" 
-              value="sum" 
-              checked={value === 'sum'} 
-              onChange={(e) => onChange(e.target.value)} 
-              style={{ display: 'none' }} 
-            />
-            <strong style={{ fontSize: '1.15rem', color: value === 'sum' ? 'var(--accent-dark)' : 'var(--ink)' }}>
-              MinAverage
-            </strong>
+          <input
+            type="radio"
+            name="optimization"
+            value="minavg"
+            checked={value === "minavg"}
+            onChange={(e) => onChange(e.target.value)}
+            style={{ marginTop: "4px", accentColor: "var(--accent)", transform: "scale(1.2)" }}
+          />
+          <div>
+            <h3 style={{ margin: "0 0 6px 0", color: "var(--ink)", fontSize: "1.1rem" }}>
+              🦸‍♂️ אחד בשביל כולם וכולם בשביל אחד
+            </h3>
+            <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.95rem", lineHeight: "1.4" }}>
+              חוסך זמן נסיעה כללי לקבוצה, אבל יכול להיות שמישהו אחד ייסע יותר מהשאר.
+            </p>
           </div>
-          <span style={{ color: 'var(--muted)', fontSize: '0.95rem', paddingRight: '34px', lineHeight: '1.4' }}>
-            קורבן למען הקבוצה — חוסך זמן נסיעה כללי, אבל מישהו ינהג יותר
-          </span>
         </label>
 
       </div>
-    </div>
+    </section>
   );
 }
