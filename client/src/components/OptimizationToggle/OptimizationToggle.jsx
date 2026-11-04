@@ -42,27 +42,26 @@ export default function OptimizationToggle({ value, onChange }) {
             </p>
           </div>
         </label>
-
-        {/* שיטה 2: אחד בשביל כולם */}
-        <label
+{/* שיטה 2: אחד בשביל כולם */}
+<label
           style={{
             display: "flex",
             gap: "1rem",
             padding: "1.2rem",
-            border: value === "minavg" ? "2px solid var(--accent)" : "1px solid var(--line)",
+            border: value === "sum" ? "2px solid var(--accent)" : "1px solid var(--line)",
             borderRadius: "16px",
-            background: value === "minavg" ? "var(--surface)" : "#f8fafc",
+            background: value === "sum" ? "var(--surface)" : "#f8fafc",
             cursor: "pointer",
             transition: "all 0.2s",
-            boxShadow: value === "minavg" ? "0 4px 12px rgba(99, 102, 241, 0.15)" : "none",
+            boxShadow: value === "sum" ? "0 4px 12px rgba(99, 102, 241, 0.15)" : "none",
             alignItems: "flex-start"
           }}
         >
           <input
             type="radio"
             name="optimization"
-            value="minavg"
-            checked={value === "minavg"}
+            value="sum"
+            checked={value === "sum"}
             onChange={(e) => onChange(e.target.value)}
             style={{ marginTop: "4px", accentColor: "var(--accent)", transform: "scale(1.2)" }}
           />
@@ -71,11 +70,10 @@ export default function OptimizationToggle({ value, onChange }) {
               🦸‍♂️ אחד בשביל כולם וכולם בשביל אחד
             </h3>
             <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.95rem", lineHeight: "1.4" }}>
-              חוסך זמן נסיעה כללי לקבוצה, אבל יכול להיות שמישהו אחד ייסע יותר מכולם.
+              חוסך זמן נסיעה כללי לקבוצה, אבל יכול להיות שמישהו אחד ייסע יותר מהשאר.
             </p>
           </div>
         </label>
-
       </div>
     </section>
   );
