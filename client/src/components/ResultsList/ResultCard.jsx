@@ -37,7 +37,6 @@ export default function ResultCard({ place, participants, isShareMode, isSelecte
         <div style={{ width: "100%" }}>
           <h3 style={{ margin: "0 0 4px 0", fontSize: "1.3rem", color: "var(--ink)" }}>{place.name}</h3>
           
-          {/* הכתובת שהוספנו */}
           {place.vicinity && (
             <p style={{ margin: "0 0 10px 0", fontSize: "0.85rem", color: "var(--muted)", fontWeight: "500" }}>
               📍 {place.vicinity}
@@ -89,21 +88,23 @@ export default function ResultCard({ place, participants, isShareMode, isSelecte
           </button>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "100%" }}>
-            {/* כפתור המפה החדש */}
             {onShowMap && (
               <button 
                 className="button" 
                 onClick={() => onShowMap(place)}
-                style={{ gridColumn: "span 2", backgroundColor: "var(--accent)", color: "#fff", border: "none", fontWeight: "600" }}
+                style={{ backgroundColor: "var(--accent)", color: "#fff", border: "none", fontWeight: "600", fontSize: "14px", padding: "8px" }}
               >
                 🗺️ הצג במפה
               </button>
             )}
-            <a className="button" href={place.wazeUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#0099ff", color: "#fff", textDecoration: "none", fontSize: "14px", textAlign: "center" }}>
+            <a className="button" href={place.googleSearchUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#f0f0f0", color: "#333", textDecoration: "none", fontSize: "14px", textAlign: "center", padding: "8px", fontWeight: "600" }}>
+              🔍 תפריט
+            </a>
+            <a className="button" href={place.wazeUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#0099ff", color: "#fff", textDecoration: "none", fontSize: "14px", textAlign: "center", padding: "8px", fontWeight: "600" }}>
               Waze 🚗
             </a>
-            <a className="button" href={whatsappUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#25D366", color: "#fff", textDecoration: "none", fontSize: "14px", textAlign: "center" }}>
-               שיתוף
+            <a className="button" href={whatsappUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#25D366", color: "#fff", textDecoration: "none", fontSize: "14px", textAlign: "center", padding: "8px", fontWeight: "600" }}>
+               וואטסאפ 💬
             </a>
           </div>
         )}

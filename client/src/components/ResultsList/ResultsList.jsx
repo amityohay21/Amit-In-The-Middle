@@ -2,6 +2,37 @@ import React, { useState, useMemo } from "react";
 import ResultCard from "./ResultCard.jsx";
 import { GoogleMap, MarkerF, InfoWindowF, useJsApiLoader } from "@react-google-maps/api";
 
+// עיצוב מפה נקי ומינימליסטי
+const cleanMapStyle = [
+  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }, 
+  { featureType: "transit", stylers: [{ visibility: "off" }] }, 
+  { featureType: "landscape", stylers: [{ color: "#f8fafc" }] }, 
+  { featureType: "water", stylers: [{ color: "#e2e8f0" }] }, 
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] }, 
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] } 
+];
+
+// פונקציה אגרסיבית לחילוץ קואורדינטות (כדי להבטיח שהחברים והמקומות יופיעו)
+const extractCoords = (item) => {
+  if (!item) return null;
+  // אם זה ישר lat, lng
+  if (item.lat !== undefined && item.lng !== undefined) return { lat: Number(item.lat), lng: Number(item.lng) };
+  // אם זה תחת location
+  if (item.location?.lat !== undefined) return { lat: Number(item.location.lat), lng: Number(item.location.lng) };
+  // אם זה תחת coords
+  if (item.coords?.lat !== undefined) return { lat: Number(item.coords.lat), lng: Number(item.coords.lng) };
+  // אם זה מ-Google Places API
+  if (item.geometry?.location?.lat !== undefined) {
+    const lat = item.geometry.location.lat;
+    const lng = item.geometry.location.lng;
+    return {
+      lat: typeof lat === 'function' ? lat() : Number(lat),
+      lng: typeof lng === 'function' ? lng() : Number(lng)
+    };
+  }
+  return null;
+};
+
 const FilterChip = ({ label, checked, onChange }) => (
   <label style={{
     display: "inline-flex", alignItems: "center", gap: "6px",
@@ -12,12 +43,7 @@ const FilterChip = ({ label, checked, onChange }) => (
     cursor: "pointer", fontSize: "14px", userSelect: "none",
     transition: "all 0.2s"
   }}>
-    <input 
-      type="checkbox" 
-      checked={checked} 
-      onChange={onChange} 
-      style={{ display: "none" }} 
-    />
+    <input type="checkbox" checked={checked} onChange={onChange} style={{ display: "none" }} />
     {checked ? "✓ " : ""}{label}
   </label>
 );
@@ -26,15 +52,13 @@ export default function ResultsList({ results, searchRadius, participants }) {
   const [categories, setCategories] = useState({ cafe: true, restaurant: true, bar: true, cart: true });
   const [sortByRating, setSortByRating] = useState(false);
   
-  // --- ניהול מצבי התייעצות ומפה ---
   const [isShareMode, setIsShareMode] = useState(false);
   const [selectedPlaces, setSelectedPlaces] = useState([]);
-  const [mapPlace, setMapPlace] = useState(null); // המקום שמוצג כרגע במפה
+  const [mapPlace, setMapPlace] = useState(null); 
 
-  // טעינת הסקריפט של גוגל מפות
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_JS_KEY || "", // שואב את המפתח מקובץ ה-.env
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_JS_KEY || "", 
   });
 
   const toggleSelection = (place) => {
@@ -96,6 +120,9 @@ export default function ResultsList({ results, searchRadius, participants }) {
 
   const toggleCategory = (key) => setCategories(prev => ({ ...prev, [key]: !prev[key] }));
 
+  const mapPlaceCoords = mapPlace ? extractCoords(mapPlace) : null;
+  const fallbackCoords = { lat: 32.0853, lng: 34.7818 }; 
+
   if (!results) return null;
 
   return (
@@ -104,7 +131,7 @@ export default function ResultsList({ results, searchRadius, participants }) {
         <h2>תוצאות</h2>
       </header>
 
-      {/* באנר התייעצות קבוצתית */}
+      {/* אזור התייעצות */}
       <div style={{ background: "var(--surface)", padding: "16px", borderRadius: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--line)", flexWrap: "wrap", gap: "12px" }}>
         {isShareMode ? (
           <>
@@ -132,7 +159,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
         )}
       </div>
 
-      {/* פילטרים */}
       <div className="filters-bar" style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
         <FilterChip label="בתי קפה" checked={categories.cafe} onChange={() => toggleCategory("cafe")} />
         <FilterChip label="מסעדות" checked={categories.restaurant} onChange={() => toggleCategory("restaurant")} />
@@ -150,7 +176,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
         </div>
       </div>
 
-      {/* רשימת המקומות */}
       <div className="results__list">
         {filteredAndSortedResults.length > 0 ? (
           filteredAndSortedResults.map((place) => (
@@ -161,7 +186,7 @@ export default function ResultsList({ results, searchRadius, participants }) {
               isShareMode={isShareMode}
               isSelected={selectedPlaces.some(p => p.placeId === place.placeId)}
               onToggleSelect={toggleSelection}
-              onShowMap={(p) => setMapPlace(p)} // פתיחת מודל המפה
+              onShowMap={(p) => setMapPlace(p)}
             />
           ))
         ) : (
@@ -169,7 +194,7 @@ export default function ResultsList({ results, searchRadius, participants }) {
         )}
       </div>
 
-      {/* --- מודל מפה צף (Map Modal) --- */}
+      {/* חלונית המפה */}
       {mapPlace && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
@@ -180,53 +205,56 @@ export default function ResultsList({ results, searchRadius, participants }) {
             background: "#fff", width: "100%", maxWidth: "700px", borderRadius: "16px",
             overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column"
           }}>
-            {/* כותרת החלונית */}
             <div style={{ padding: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)" }}>
               <h3 style={{ margin: 0, fontSize: "1.2rem", color: "var(--ink)" }}>{mapPlace.name}</h3>
               <button onClick={() => setMapPlace(null)} style={{ background: "none", border: "none", fontSize: "1.8rem", cursor: "pointer", color: "var(--muted)", lineHeight: 1 }}>&times;</button>
             </div>
 
-            {/* שטח המפה */}
             <div style={{ width: "100%", height: "450px", position: "relative" }}>
               {!isLoaded ? (
                 <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>טוען מפה...</div>
               ) : (
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: "100%" }}
-                  center={{
-                    lat: mapPlace.geometry?.location?.lat || mapPlace.location?.lat || mapPlace.lat || 32.0853,
-                    lng: mapPlace.geometry?.location?.lng || mapPlace.location?.lng || mapPlace.lng || 34.7818
-                  }}
+                  center={mapPlaceCoords || fallbackCoords}
                   zoom={12}
-                  options={{ disableDefaultUI: true, zoomControl: true }}
+                  options={{ 
+                    disableDefaultUI: true, 
+                    zoomControl: true,
+                    styles: cleanMapStyle 
+                  }}
                 >
-                  {/* נעץ כחול למקום העסק */}
-                  <MarkerF
-                    position={{
-                      lat: mapPlace.geometry?.location?.lat || mapPlace.location?.lat || mapPlace.lat || 32.0853,
-                      lng: mapPlace.geometry?.location?.lng || mapPlace.location?.lng || mapPlace.lng || 34.7818
-                    }}
-                    icon={{ url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
-                  />
+                  {/* נקודת המפגש - נעץ כחול בולט וגדול יותר */}
+                  {mapPlaceCoords && (
+                    <MarkerF
+                      position={mapPlaceCoords}
+                      zIndex={999}
+                      icon={{ 
+                        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                        scaledSize: window.google ? new window.google.maps.Size(48, 48) : null
+                      }}
+                    />
+                  )}
 
-                  {/* נעצים אפורים + בלוני מידע לחברים */}
-                  {mapPlace.travelTimes?.map((item) => {
-                    const p = participants[item.participantIndex];
-                    if (!p) return null;
-                    const pLat = p.geometry?.location?.lat || p.location?.lat || p.lat;
-                    const pLng = p.geometry?.location?.lng || p.location?.lng || p.lng;
-                    if (!pLat || !pLng) return null;
-
-                    const pos = { lat: pLat, lng: pLng };
-                    // SVG של נעץ אפור נקי
-                    const grayPinSvg = `data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path fill="%23888888" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
+                  {/* נעצי המשתתפים (נקודות מוצא) - נעצים אדומים ובלוני טקסט */}
+                  {mapPlace.travelTimes?.map((item, idx) => {
+                    // מוודא שאנחנו תופסים את החבר הנכון, גם אם האינדקס חסר
+                    const pIndex = item.participantIndex !== undefined ? item.participantIndex : idx;
+                    const p = participants[pIndex];
+                    const pCoords = extractCoords(p);
+                    
+                    if (!pCoords) return null;
 
                     return (
-                      <div key={item.participantIndex}>
-                        <MarkerF position={pos} icon={{ url: grayPinSvg }} />
-                        <InfoWindowF position={pos} options={{ disableAutoPan: true }}>
+                      <div key={pIndex}>
+                        <MarkerF 
+                          position={pCoords} 
+                          icon={{ url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" }} 
+                        />
+                        <InfoWindowF position={pCoords} options={{ disableAutoPan: true }}>
                           <div style={{ padding: "2px", fontWeight: "600", color: "#333", fontSize: "14px", textAlign: "center", lineHeight: "1.4" }}>
-                            {p.name} <br/> <span style={{color: "var(--muted)"}}>🚗 {item.durationMinutes} דק'</span>
+                            {p.name || `משתתף ${pIndex + 1}`} <br/> 
+                            <span style={{color: "var(--muted)"}}>🚗 {item.durationMinutes} דק'</span>
                           </div>
                         </InfoWindowF>
                       </div>
@@ -236,9 +264,8 @@ export default function ResultsList({ results, searchRadius, participants }) {
               )}
             </div>
             
-            {/* כפתור ניווט מהיר בתחתית המודל */}
             <div style={{ padding: "16px", display: "flex", justifyContent: "center", background: "#f8fafc" }}>
-              <a className="button" href={mapPlace.wazeUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#0099ff", color: "#fff", textDecoration: "none", fontSize: "15px", fontWeight: "600", padding: "10px 24px", borderRadius: "24px" }}>
+              <a className="button" href={mapPlace.wazeUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#0099ff", color: "#fff", textDecoration: "none", fontSize: "15px", fontWeight: "600", padding: "10px 24px", borderRadius: "24px", width: "100%", textAlign: "center" }}>
                 נווט לנקודת האמצע עם Waze 🚗
               </a>
             </div>
