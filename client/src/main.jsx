@@ -5,11 +5,12 @@ import App from './App.jsx'
 import { PostHogProvider } from '@posthog/react'
 
 const options = {
-  api_host: 'https://eu.i.posthog.com', // מגדירים ישירות את אירופה בצורה קשיחה וודאית
+  api_host: 'https://eu.i.posthog.com',
   ui_host: 'https://eu.posthog.com',
   autocapture: true,
   capture_pageview: true,
   capture_pageleave: true,
+  advanced_disable_feature_flags_on_first_load: true, // מעלים את שגיאת ה-401
 }
 
 createRoot(document.getElementById('root')).render(
