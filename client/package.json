@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@posthog/react": "^1.11.3",
     "@react-google-maps/api": "^2.20.8",
+    "posthog-js": "^1.446.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
