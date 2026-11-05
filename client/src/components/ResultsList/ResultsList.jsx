@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import ResultCard from "./ResultCard.jsx";
 import { GoogleMap, MarkerF, InfoWindowF, useJsApiLoader } from "@react-google-maps/api";
 
-// עיצוב מפה נקי ומינימליסטי
 const cleanMapStyle = [
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }, 
   { featureType: "transit", stylers: [{ visibility: "off" }] }, 
@@ -12,23 +11,16 @@ const cleanMapStyle = [
   { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] } 
 ];
 
-// פונקציה אגרסיבית לחילוץ קואורדינטות (כדי להבטיח שהחברים והמקומות יופיעו)
+// פונקציה סופר-אגרסיבית שמוצאת קואורדינטות בכל מבנה אפשרי
 const extractCoords = (item) => {
   if (!item) return null;
-  // אם זה ישר lat, lng
-  if (item.lat !== undefined && item.lng !== undefined) return { lat: Number(item.lat), lng: Number(item.lng) };
-  // אם זה תחת location
-  if (item.location?.lat !== undefined) return { lat: Number(item.location.lat), lng: Number(item.location.lng) };
-  // אם זה תחת coords
-  if (item.coords?.lat !== undefined) return { lat: Number(item.coords.lat), lng: Number(item.coords.lng) };
-  // אם זה מ-Google Places API
-  if (item.geometry?.location?.lat !== undefined) {
-    const lat = item.geometry.location.lat;
-    const lng = item.geometry.location.lng;
-    return {
-      lat: typeof lat === 'function' ? lat() : Number(lat),
-      lng: typeof lng === 'function' ? lng() : Number(lng)
-    };
+  const lat = item.lat ?? item.latitude ?? item.location?.lat ?? item.geometry?.location?.lat ?? item.coords?.lat;
+  const lng = item.lng ?? item.longitude ?? item.location?.lng ?? item.geometry?.location?.lng ?? item.coords?.lng;
+  
+  if (lat !== undefined && lng !== undefined) {
+    const numLat = typeof lat === 'function' ? lat() : Number(lat);
+    const numLng = typeof lng === 'function' ? lng() : Number(lng);
+    if (!isNaN(numLat) && !isNaN(numLng)) return { lat: numLat, lng: numLng };
   }
   return null;
 };
@@ -202,15 +194,18 @@ export default function ResultsList({ results, searchRadius, participants }) {
           justifyContent: "center", alignItems: "center", padding: "16px", backdropFilter: "blur(4px)"
         }}>
           <div style={{
-            background: "#fff", width: "100%", maxWidth: "700px", borderRadius: "16px",
-            overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column"
+            background: "#fff", width: "100%", maxWidth: "700px", 
+            maxHeight: "85vh", // תיקון חיתוך המסך בנייד
+            borderRadius: "16px", overflow: "hidden", 
+            boxShadow: "0 20px 40px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column"
           }}>
             <div style={{ padding: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)" }}>
               <h3 style={{ margin: 0, fontSize: "1.2rem", color: "var(--ink)" }}>{mapPlace.name}</h3>
               <button onClick={() => setMapPlace(null)} style={{ background: "none", border: "none", fontSize: "1.8rem", cursor: "pointer", color: "var(--muted)", lineHeight: 1 }}>&times;</button>
             </div>
 
-            <div style={{ width: "100%", height: "450px", position: "relative" }}>
+            {/* שטח המפה מתגמש כדי לא לחרוג מהמסך */}
+            <div style={{ width: "100%", flex: 1, minHeight: "250px", position: "relative" }}>
               {!isLoaded ? (
                 <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>טוען מפה...</div>
               ) : (
@@ -218,27 +213,19 @@ export default function ResultsList({ results, searchRadius, participants }) {
                   mapContainerStyle={{ width: "100%", height: "100%" }}
                   center={mapPlaceCoords || fallbackCoords}
                   zoom={12}
-                  options={{ 
-                    disableDefaultUI: true, 
-                    zoomControl: true,
-                    styles: cleanMapStyle 
-                  }}
+                  options={{ disableDefaultUI: true, zoomControl: true, styles: cleanMapStyle }}
                 >
-                  {/* נקודת המפגש - נעץ כחול בולט וגדול יותר */}
+                  {/* נקודת המפגש - נעץ כחול פשוט ויציב */}
                   {mapPlaceCoords && (
                     <MarkerF
                       position={mapPlaceCoords}
                       zIndex={999}
-                      icon={{ 
-                        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                        scaledSize: window.google ? new window.google.maps.Size(48, 48) : null
-                      }}
+                      icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
                     />
                   )}
 
-                  {/* נעצי המשתתפים (נקודות מוצא) - נעצים אדומים ובלוני טקסט */}
+                  {/* נעצי המשתתפים */}
                   {mapPlace.travelTimes?.map((item, idx) => {
-                    // מוודא שאנחנו תופסים את החבר הנכון, גם אם האינדקס חסר
                     const pIndex = item.participantIndex !== undefined ? item.participantIndex : idx;
                     const p = participants[pIndex];
                     const pCoords = extractCoords(p);
@@ -249,7 +236,7 @@ export default function ResultsList({ results, searchRadius, participants }) {
                       <div key={pIndex}>
                         <MarkerF 
                           position={pCoords} 
-                          icon={{ url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" }} 
+                          icon="http://maps.google.com/mapfiles/ms/icons/red-dot.png"
                         />
                         <InfoWindowF position={pCoords} options={{ disableAutoPan: true }}>
                           <div style={{ padding: "2px", fontWeight: "600", color: "#333", fontSize: "14px", textAlign: "center", lineHeight: "1.4" }}>
