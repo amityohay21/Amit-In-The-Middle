@@ -4,14 +4,17 @@ import './index.css'
 import App from './App.jsx'
 import { PostHogProvider } from '@posthog/react'
 
-// הגדרות נקיות רק עם ה-Host הנכון
 const options = {
-  api_host: import.meta.env.VITE_POSTHOG_HOST,
+  api_host: 'https://eu.i.posthog.com', // מגדירים ישירות את אירופה בצורה קשיחה וודאית
+  ui_host: 'https://eu.posthog.com',
+  autocapture: true,
+  capture_pageview: true,
+  capture_pageleave: true,
 }
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <PostHogProvider apiKey={import.meta.env.VITE_POSTHOG_PROJECT_TOKEN} options={options}>
+    <PostHogProvider apiKey="phc_kVgFHxKqfJZpmtJLg3zPUHzEpZyNHWDgprmkoYwoe9Ve" options={options}>
       <App />
     </PostHogProvider>
   </StrictMode>
