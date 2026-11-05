@@ -268,6 +268,7 @@ input[type="text"]:focus {
   letter-spacing: -0.03em;
   /* גרדיאנט אינדיגו-טורקיז עמוק ויוקרתי */
   background: linear-gradient(135deg, #312E81 0%, #4F46E5 45%, #06B6D4 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
