@@ -11,7 +11,6 @@ const cleanMapStyle = [
   { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] } 
 ];
 
-// פונקציה סופר-אגרסיבית שמוצאת קואורדינטות בכל מבנה אפשרי
 const extractCoords = (item) => {
   if (!item) return null;
   const lat = item.lat ?? item.latitude ?? item.location?.lat ?? item.geometry?.location?.lat ?? item.coords?.lat;
@@ -123,7 +122,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
         <h2>תוצאות</h2>
       </header>
 
-      {/* אזור התייעצות */}
       <div style={{ background: "var(--surface)", padding: "16px", borderRadius: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--line)", flexWrap: "wrap", gap: "12px" }}>
         {isShareMode ? (
           <>
@@ -186,7 +184,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
         )}
       </div>
 
-      {/* חלונית המפה */}
       {mapPlace && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
@@ -195,7 +192,6 @@ export default function ResultsList({ results, searchRadius, participants }) {
         }}>
           <div style={{
             background: "#fff", width: "100%", maxWidth: "700px", 
-            maxHeight: "85vh", // תיקון חיתוך המסך בנייד
             borderRadius: "16px", overflow: "hidden", 
             boxShadow: "0 20px 40px rgba(0,0,0,0.3)", display: "flex", flexDirection: "column"
           }}>
@@ -204,8 +200,8 @@ export default function ResultsList({ results, searchRadius, participants }) {
               <button onClick={() => setMapPlace(null)} style={{ background: "none", border: "none", fontSize: "1.8rem", cursor: "pointer", color: "var(--muted)", lineHeight: 1 }}>&times;</button>
             </div>
 
-            {/* שטח המפה מתגמש כדי לא לחרוג מהמסך */}
-            <div style={{ width: "100%", flex: 1, minHeight: "250px", position: "relative" }}>
+            {/* התיקון הקריטי: גובה מפורש ומוחלט כדי למנוע את באג המסך הלבן */}
+            <div style={{ width: "100%", height: "55vh", minHeight: "350px", maxHeight: "500px", position: "relative" }}>
               {!isLoaded ? (
                 <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>טוען מפה...</div>
               ) : (
@@ -215,16 +211,16 @@ export default function ResultsList({ results, searchRadius, participants }) {
                   zoom={12}
                   options={{ disableDefaultUI: true, zoomControl: true, styles: cleanMapStyle }}
                 >
-                  {/* נקודת המפגש - נעץ כחול פשוט ויציב */}
+                  {/* נעץ העסק (כחול) מאובטח עם HTTPS */}
                   {mapPlaceCoords && (
                     <MarkerF
                       position={mapPlaceCoords}
                       zIndex={999}
-                      icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                      icon={{ url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
                     />
                   )}
 
-                  {/* נעצי המשתתפים */}
+                  {/* נעצי המשתתפים (אדומים) מאובטחים עם HTTPS */}
                   {mapPlace.travelTimes?.map((item, idx) => {
                     const pIndex = item.participantIndex !== undefined ? item.participantIndex : idx;
                     const p = participants[pIndex];
@@ -236,7 +232,7 @@ export default function ResultsList({ results, searchRadius, participants }) {
                       <div key={pIndex}>
                         <MarkerF 
                           position={pCoords} 
-                          icon="http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                          icon={{ url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" }}
                         />
                         <InfoWindowF position={pCoords} options={{ disableAutoPan: true }}>
                           <div style={{ padding: "2px", fontWeight: "600", color: "#333", fontSize: "14px", textAlign: "center", lineHeight: "1.4" }}>
