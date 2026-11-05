@@ -11,9 +11,9 @@ function primaryType(types, name) {
   return "מקום בילוי";
 }
 
-export default function ResultCard({ place, participants, isShareMode, isSelected, onToggleSelect, onShowMap }) {
+export default function ResultCard({ place, participants, isShareMode, isSelected, onToggleSelect }) {
   const whatsappMessage = encodeURIComponent(
-    `האמצע המושלם בשבילנו! 🎯\n\nניפגש ב-${place.name} 📍\nכתובת: ${place.vicinity}\n\n🚗 לניווט מהיר ב-Waze:\n${place.wazeUrl}`
+    `האמצע המושלם בשבילנו! 🎯\n\nניפגש ב-${place.name} 📍\nכתובת: ${place.vicinity || ''}\n\n🚗 לניווט מהיר ב-Waze:\n${place.wazeUrl}`
   );
   const whatsappUrl = `https://api.whatsapp.com/send?text=${whatsappMessage}`;
 
@@ -87,24 +87,15 @@ export default function ResultCard({ place, participants, isShareMode, isSelecte
             {isSelected ? "✅ נבחר (לחץ להסרה)" : "➕ הוסף להתייעצות"}
           </button>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "100%" }}>
-            {onShowMap && (
-              <button 
-                className="button" 
-                onClick={() => onShowMap(place)}
-                style={{ backgroundColor: "var(--accent)", color: "#fff", border: "none", fontWeight: "600", fontSize: "14px", padding: "8px" }}
-              >
-                🗺️ הצג במפה
-              </button>
-            )}
-            <a className="button" href={place.googleSearchUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#f0f0f0", color: "#333", textDecoration: "none", fontSize: "14px", textAlign: "center", padding: "8px", fontWeight: "600" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }}>
+            <a className="button" href={place.googleSearchUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#f0f0f0", color: "#333", textDecoration: "none", fontSize: "14px", flex: "1", textAlign: "center", padding: "10px 8px", fontWeight: "600" }}>
               🔍 תפריט
             </a>
-            <a className="button" href={place.wazeUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#0099ff", color: "#fff", textDecoration: "none", fontSize: "14px", textAlign: "center", padding: "8px", fontWeight: "600" }}>
+            <a className="button" href={place.wazeUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#0099ff", color: "#fff", textDecoration: "none", fontSize: "14px", flex: "1", textAlign: "center", padding: "10px 8px", fontWeight: "600" }}>
               Waze 🚗
             </a>
-            <a className="button" href={whatsappUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#25D366", color: "#fff", textDecoration: "none", fontSize: "14px", textAlign: "center", padding: "8px", fontWeight: "600" }}>
-               וואטסאפ 💬
+            <a className="button" href={whatsappUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#25D366", color: "#fff", textDecoration: "none", fontSize: "14px", flex: "1", textAlign: "center", padding: "10px 8px", fontWeight: "600" }}>
+              שיתוף 💬
             </a>
           </div>
         )}
