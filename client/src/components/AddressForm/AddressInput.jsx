@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function AddressInput({ value, onChange, placeholder, className, style }) {
+export default function AddressInput({ value, onChange, placeholder, className, style, isResolved }) {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -18,8 +18,7 @@ export default function AddressInput({ value, onChange, placeholder, className, 
       const place = autocompleteRef.current.getPlace();
       if (place && (place.formatted_address || place.name)) {
         setTimeout(() => {
-          // שולח true - הכתובת אומתה ונבחרה מהרשימה
-          onChange(place.formatted_address || place.name, true); 
+          onChange(place.formatted_address || place.name, true);
         }, 0);
       }
     });
@@ -45,8 +44,7 @@ export default function AddressInput({ value, onChange, placeholder, className, 
         geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
           setIsLocating(false);
           if (status === "OK" && results[0]) {
-            // שולח true - הכתובת אומתה דרך ה-GPS
-            onChange(results[0].formatted_address, true); 
+            onChange(results[0].formatted_address, true);
           } else {
             alert("לא הצלחנו לפענח את הכתובת. נסו להקליד ידנית.");
           }
@@ -73,12 +71,29 @@ export default function AddressInput({ value, onChange, placeholder, className, 
         className={className}
         placeholder={placeholder}
         value={value}
-        // שולח false - המשתמש רק מקליד טקסט חופשי (טרם בחר)
-        onChange={(e) => onChange(e.target.value, false)} 
+        onChange={(e) => onChange(e.target.value, false)}
         onKeyDown={handleKeyDown}
-        // הוספנו את ה-style שמועבר מבחוץ (כדי לאפשר צביעה באדום במקרה של שגיאה)
-        style={{ width: '100%', paddingLeft: '40px', ...style }} 
+        style={{ 
+          width: '100%', 
+          paddingLeft: '40px', 
+          paddingRight: isResolved ? '35px' : '10px', 
+          ...style 
+        }} 
       />
+      
+      {isResolved && (
+        <span style={{
+          position: 'absolute',
+          right: '12px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          pointerEvents: 'none',
+          fontSize: '1rem',
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+        }}>
+          ✅
+        </span>
+      )}
       
       <button
         type="button"

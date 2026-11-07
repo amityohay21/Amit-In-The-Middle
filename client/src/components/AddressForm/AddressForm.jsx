@@ -30,20 +30,16 @@ export default function AddressForm({
   includeCarts, setIncludeCarts,
   openNow, setOpenNow 
 }) {
-  // סטייט מקומי שעוקב מי מהמשתתפים סיים לבחור מהרשימה (true) ומי רק מקליד (false)
   const [resolvedStatus, setResolvedStatus] = useState([]);
 
-  // סופר כמה שדות כתובת מלאים יש
   const filledCount = participants.filter((p) => (p.address || "").trim()).length;
 
-  // בודק אם יש לפחות משתתף אחד שהתחיל להקליד אבל לא בחר מהרשימה הקופצת
   const hasUnresolvedAddresses = participants.some((p, index) => {
     const text = p.address || "";
-    if (text.trim().length === 0) return false; // שדה ריק לחלוטין הוא תקין (לא מעכב)
-    return !resolvedStatus[index]; // אם יש טקסט אבל הסטטוס הוא false = חצי אפוי
+    if (text.trim().length === 0) return false;
+    return !resolvedStatus[index];
   });
 
-  // הטופס תקין אך ורק אם יש לפחות 2 אנשים, ואף כתובת לא נשארה "חצי אפויה"
   const isFormValid = filledCount >= 2 && !hasUnresolvedAddresses;
 
   return (
@@ -51,7 +47,6 @@ export default function AddressForm({
       className="address-form"
       onSubmit={(event) => {
         event.preventDefault();
-        // חסימת קריאת השרת ברמת הטופס כדי למנוע את הודעת ה"עומס רגעי"
         if (isFormValid) onSubmit();
       }}
     >
@@ -63,7 +58,6 @@ export default function AddressForm({
       <div className="participants-list">
         {participants.map((participant, index) => {
           const text = participant.address || "";
-          // הגדרת השדה הנוכחי כבעייתי אם יש בו טקסט והוא לא אושר מהרשימה
           const isInvalid = text.trim().length > 0 && !resolvedStatus[index]; 
 
           return (
@@ -81,10 +75,9 @@ export default function AddressForm({
                   className="input-address"
                   placeholder={index === 0 ? "כתובת (למשל: האמהות 1, נס ציונה)" : "כתובת (למשל: תל אביב)"}
                   value={participant.address}
+                  isResolved={resolvedStatus[index]}
                   onChange={(newAddress, isResolved) => {
-                    // עדכון הסטייט המרכזי (טקסט)
                     onChange(index, "address", newAddress);
-                    // עדכון הסטייט המקומי (האם נבחר מגוגל)
                     setResolvedStatus(prev => {
                       const next = [...prev];
                       next[index] = isResolved;
@@ -92,7 +85,6 @@ export default function AddressForm({
                     });
                   }}
                   style={{
-                    // אם המשתמש התחיל להקליד ולא בחר - המסגרת תאדים
                     border: isInvalid ? '2px solid #ef4444' : undefined,
                     backgroundColor: isInvalid ? '#fef2f2' : undefined
                   }}
@@ -105,7 +97,6 @@ export default function AddressForm({
                   className="button--remove"
                   onClick={() => {
                     onRemove(index);
-                    // אם מחקנו משתתף, אנחנו מנקים את הסטטוס שלו כדי שהמערך יישאר מסונכרן
                     setResolvedStatus(prev => prev.filter((_, i) => i !== index));
                   }}
                   title="הסר"
@@ -151,7 +142,6 @@ export default function AddressForm({
             className="button button--primary"
             disabled={isLoading || !isFormValid}
             style={{
-              // כפתור אפור כאשר חסרה בחירה, וכחול כשהכל מוכן
               backgroundColor: isFormValid ? 'var(--accent)' : '#d1d5db',
               color: isFormValid ? '#fff' : '#6b7280',
               cursor: isFormValid ? 'pointer' : 'not-allowed',
@@ -163,10 +153,9 @@ export default function AddressForm({
             מצאו נקודת מפגש
           </button>
           
-          {/* הודעת השגיאה שתחליף את חלון העומס - מופיעה רק כשיש כתובת חצי-אפויה */}
           {hasUnresolvedAddresses && (
             <span style={{ color: '#ef4444', fontSize: '0.85rem', fontWeight: '600', marginTop: '6px', textAlign: 'left' }}>
-              * יש לבחור כתובת מהכתובות שברשימה
+              * חובה לבחור את הכתובות המודגשות מהרשימה
             </span>
           )}
         </div>
