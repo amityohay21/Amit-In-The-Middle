@@ -166,7 +166,7 @@ export default function AddressForm({
           {/* הודעת השגיאה שתחליף את חלון העומס - מופיעה רק כשיש כתובת חצי-אפויה */}
           {hasUnresolvedAddresses && (
             <span style={{ color: '#ef4444', fontSize: '0.85rem', fontWeight: '600', marginTop: '6px', textAlign: 'left' }}>
-              * חובה לבחור את הכתובות המודגשות מהרשימה
+              * יש לבחור כתובת מהכתובות שברשימה
             </span>
           )}
         </div>
