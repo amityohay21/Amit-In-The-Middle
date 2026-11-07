@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function AddressInput({ value, onChange, placeholder, className }) {
+export default function AddressInput({ value, onChange, placeholder, className, style }) {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -17,9 +17,9 @@ export default function AddressInput({ value, onChange, placeholder, className }
     const listener = autocompleteRef.current.addListener("place_changed", () => {
       const place = autocompleteRef.current.getPlace();
       if (place && (place.formatted_address || place.name)) {
-        // ההשהיה הזו פותרת את ההתנגשות של React מול גוגל בעת הלחיצה
         setTimeout(() => {
-          onChange(place.formatted_address || place.name);
+          // שולח true - הכתובת אומתה ונבחרה מהרשימה
+          onChange(place.formatted_address || place.name, true); 
         }, 0);
       }
     });
@@ -45,7 +45,8 @@ export default function AddressInput({ value, onChange, placeholder, className }
         geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
           setIsLocating(false);
           if (status === "OK" && results[0]) {
-            onChange(results[0].formatted_address);
+            // שולח true - הכתובת אומתה דרך ה-GPS
+            onChange(results[0].formatted_address, true); 
           } else {
             alert("לא הצלחנו לפענח את הכתובת. נסו להקליד ידנית.");
           }
@@ -58,7 +59,6 @@ export default function AddressInput({ value, onChange, placeholder, className }
     );
   };
 
-  // מניעת שליחת הטופס בטעות כשלוחצים אנטר כדי לבחור כתובת מגוגל
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -73,9 +73,11 @@ export default function AddressInput({ value, onChange, placeholder, className }
         className={className}
         placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown} // הוספנו את החסימה לכאן
-        style={{ width: '100%', paddingLeft: '40px' }} 
+        // שולח false - המשתמש רק מקליד טקסט חופשי (טרם בחר)
+        onChange={(e) => onChange(e.target.value, false)} 
+        onKeyDown={handleKeyDown}
+        // הוספנו את ה-style שמועבר מבחוץ (כדי לאפשר צביעה באדום במקרה של שגיאה)
+        style={{ width: '100%', paddingLeft: '40px', ...style }} 
       />
       
       <button

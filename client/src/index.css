@@ -296,3 +296,6 @@ input[type="text"]:focus {
   margin-top: 0.5rem;
   font-weight: 400;
 }
+.pac-container {
+  touch-action: none;
+}
