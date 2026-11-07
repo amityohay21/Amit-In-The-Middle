@@ -5,8 +5,7 @@ import App from './App.jsx'
 import posthog from 'posthog-js'
 import { PostHogProvider } from '@posthog/react'
 
-// אתחול ישיר לפי הדוקומנטציה של React
-posthog.init('phc_kVgFHxKqfJZpmtJLg3zPUHzEpZyNHWDgprmkoYwoe9Ve', {
+posthog.init('phc_nsj2h47LXXBoVMEHSZPWNUwaBjPvEG6dn55sqGVm6NtX', {
   api_host: 'https://eu.i.posthog.com',
   ui_host: 'https://eu.posthog.com',
   autocapture: true,
@@ -15,7 +14,6 @@ posthog.init('phc_kVgFHxKqfJZpmtJLg3zPUHzEpZyNHWDgprmkoYwoe9Ve', {
   advanced_disable_feature_flags_on_first_load: true,
 })
 
-// חושף את פוסטהוג לחלון כדי שנוכל לבדוק אותו ב-Console
 if (typeof window !== 'undefined') {
   window.posthog = posthog
 }
